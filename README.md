@@ -1,5 +1,7 @@
 # Hynitron CST816S Touch Controller Driver for Apache NuttX RTOS
 
+(Used by PineDio Stack BL604)
+
 See https://lupyuen.github.io/articles/pinedio2#touch-panel
 
 # Install Driver
@@ -92,6 +94,8 @@ int bl602_bringup(void)
     }
 #endif /* CONFIG_INPUT_CST816S */
 ```
+
+Here's how we created the CST816S Driver for NuttX on PineDio Stack BL604...
 
 # Cypress MBR3108
 
