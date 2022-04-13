@@ -1178,11 +1178,11 @@ int cst816s_register(FAR const char *devpath,
 #include "../arch/risc-v/src/common/riscv_internal.h"
 #include "../arch/risc-v/src/bl602/bl602_gpio.h"
 
-static int bl602_gpio_interrupt(int irq, void *context, void *arg);
-static void bl602_gpio_intmask(int pin, int intmask);
-static void bl602_gpio_set_intmod(uint8_t gpio_pin, uint8_t int_ctlmod, uint8_t int_trgmod);
-static int bl602_gpio_get_intstatus(uint8_t gpio_pin);
-static void bl602_gpio_intclear(uint8_t gpio_pin, uint8_t int_clear);
+static int bl602_expander_interrupt(int irq, void *context, void *arg);
+static void bl602_expander_intmask(int pin, int intmask);
+static void bl602_expander_set_intmod(uint8_t gpio_pin, uint8_t int_ctlmod, uint8_t int_trgmod);
+static int bl602_expander_get_intstatus(uint8_t gpio_pin);
+static void bl602_expander_intclear(uint8_t gpio_pin, uint8_t int_clear);
 
 //  Attach Interrupt Handler to GPIO Interrupt for Touch Controller
 //  Based on https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L477-L505
@@ -1196,17 +1196,17 @@ static int bl602_irq_attach(FAR struct cst816s_dev_s *priv, FAR isr_handler *han
 #ifdef TODO
       /* Configure the pin that will be used as interrupt input */
 
-      bl602_gpio_set_intmod(
+      bl602_expander_set_intmod(
         g_gpiointinputs[i], 1, GLB_GPIO_INT_TRIG_NEG_PULSE);
       bl602_configgpio(g_gpiointinputs[i]);
 
   /* Make sure the interrupt is disabled */
 
   bl602xgpint->callback = callback;
-  bl602_gpio_intmask(gpio_pin, 1);
+  bl602_expander_intmask(gpio_pin, 1);
 
-  irq_attach(BL602_IRQ_GPIO_INT0, bl602_gpio_interrupt, dev);
-  bl602_gpio_intmask(gpio_pin, 0);
+  irq_attach(BL602_IRQ_GPIO_INT0, bl602_expander_interrupt, dev);
+  bl602_expander_intmask(gpio_pin, 0);
 
   gpioinfo("Attach %p\n", callback);
 #endif  //  TODO
@@ -1242,7 +1242,7 @@ static int bl602_irq_enable(FAR struct cst816s_dev_s *priv, bool enable)
 }
 
 /****************************************************************************
- * Name: bl602_gpio_interrupt
+ * Name: bl602_expander_interrupt
  *
  * Description:
  *   gpio interrupt. Based on
@@ -1250,7 +1250,7 @@ static int bl602_irq_enable(FAR struct cst816s_dev_s *priv, bool enable)
  *
  ****************************************************************************/
 
-static int bl602_gpio_interrupt(int irq, void *context, void *arg)
+static int bl602_expander_interrupt(int irq, void *context, void *arg)
 {
   FAR struct bl602_gpint_dev_s *bl602xgpint =
     (FAR struct bl602_gpint_dev_s *)arg;
@@ -1264,9 +1264,9 @@ static int bl602_gpio_interrupt(int irq, void *context, void *arg)
 
   gpio_pin = ???; //// (g_gpiointinputs[bl602xgpint->bl602gpio.id] & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
 
-  if (1 == bl602_gpio_get_intstatus(gpio_pin))
+  if (1 == bl602_expander_get_intstatus(gpio_pin))
     {
-      bl602_gpio_intclear(gpio_pin, 1);
+      bl602_expander_intclear(gpio_pin, 1);
 
       /* timeout check */
 
@@ -1275,7 +1275,7 @@ static int bl602_gpio_interrupt(int irq, void *context, void *arg)
         {
           time_out--;
         }
-      while ((1 == bl602_gpio_get_intstatus(gpio_pin)) && time_out);
+      while ((1 == bl602_expander_get_intstatus(gpio_pin)) && time_out);
       if (!time_out)
         {
           gpiowarn("WARNING: Clear GPIO interrupt status fail.\n");
@@ -1283,7 +1283,7 @@ static int bl602_gpio_interrupt(int irq, void *context, void *arg)
 
       /* if time_out==0, GPIO interrupt status not cleared */
 
-      bl602_gpio_intclear(gpio_pin, 0);
+      bl602_expander_intclear(gpio_pin, 0);
     }
 
   bl602xgpint->callback(&bl602xgpint->bl602gpio.gpio,
@@ -1294,7 +1294,7 @@ static int bl602_gpio_interrupt(int irq, void *context, void *arg)
 }
 
 /****************************************************************************
- * Name: bl602_gpio_intmask
+ * Name: bl602_expander_intmask
  *
  * Description:
  *   intmask a gpio pin. Based on
@@ -1302,7 +1302,7 @@ static int bl602_gpio_interrupt(int irq, void *context, void *arg)
  *
  ****************************************************************************/
 
-static void bl602_gpio_intmask(int pin, int intmask)
+static void bl602_expander_intmask(int pin, int intmask)
 {
   uint32_t tmp_val;
 
@@ -1323,7 +1323,7 @@ static void bl602_gpio_intmask(int pin, int intmask)
 }
 
 /****************************************************************************
- * Name: bl602_gpio_set_intmod
+ * Name: bl602_expander_set_intmod
  *
  * Description:
  *   set gpio intmod. Based on
@@ -1331,7 +1331,7 @@ static void bl602_gpio_intmask(int pin, int intmask)
  *
  ****************************************************************************/
 
-static void bl602_gpio_set_intmod(uint8_t gpio_pin,
+static void bl602_expander_set_intmod(uint8_t gpio_pin,
               uint8_t int_ctlmod, uint8_t int_trgmod)
 {
   gpioinfo("****gpio_pin=%d, int_ctlmod=%d, int_trgmod=%d\n", gpio_pin, int_ctlmod, int_trgmod); //// TODO
@@ -1367,7 +1367,7 @@ static void bl602_gpio_set_intmod(uint8_t gpio_pin,
 }
 
 /****************************************************************************
- * Name: bl602_gpio_get_intstatus
+ * Name: bl602_expander_get_intstatus
  *
  * Description:
  *   get gpio intstatus. Based on
@@ -1375,7 +1375,7 @@ static void bl602_gpio_set_intmod(uint8_t gpio_pin,
  *
  ****************************************************************************/
 
-static int bl602_gpio_get_intstatus(uint8_t gpio_pin)
+static int bl602_expander_get_intstatus(uint8_t gpio_pin)
 {
   uint32_t tmp_val = 0;
 
@@ -1390,7 +1390,7 @@ static int bl602_gpio_get_intstatus(uint8_t gpio_pin)
 }
 
 /****************************************************************************
- * Name: bl602_gpio_intclear
+ * Name: bl602_expander_intclear
  *
  * Description:
  *   clear gpio int. Based on
@@ -1398,7 +1398,7 @@ static int bl602_gpio_get_intstatus(uint8_t gpio_pin)
  *
  ****************************************************************************/
 
-static void bl602_gpio_intclear(uint8_t gpio_pin, uint8_t int_clear)
+static void bl602_expander_intclear(uint8_t gpio_pin, uint8_t int_clear)
 {
   if (gpio_pin < 28)
     {
