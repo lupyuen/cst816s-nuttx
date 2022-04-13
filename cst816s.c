@@ -1156,7 +1156,8 @@ static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR
 
   /* Configure the pin that will be used as interrupt input */
 
-  //  TODO: Check GLB_GPIO_INT_TRIG_NEG_PULSE
+  #warning Check GLB_GPIO_INT_TRIG_NEG_PULSE  ////  TODO
+  #warning Should be gpio_pin, not pinset //// TODO
   bl602_expander_set_intmod(pinset, 1, GLB_GPIO_INT_TRIG_NEG_PULSE);
   ret = bl602_configgpio(pinset);
   if (ret < 0)
@@ -1266,6 +1267,8 @@ static int bl602_expander_interrupt(int irq, void *context, void *arg)
 
 static void bl602_expander_intmask(int pin, int intmask)
 {
+  #warning gpio_pin should be uint8_t  ////  TODO
+  #warning Halt for invalid gpio_pin //// TODO
   uint32_t tmp_val;
 
   if (pin < 28)
@@ -1296,6 +1299,7 @@ static void bl602_expander_intmask(int pin, int intmask)
 static void bl602_expander_set_intmod(uint8_t gpio_pin,
               uint8_t int_ctlmod, uint8_t int_trgmod)
 {
+  #warning Halt for invalid gpio_pin //// TODO
   gpioinfo("****gpio_pin=%d, int_ctlmod=%d, int_trgmod=%d\n", gpio_pin, int_ctlmod, int_trgmod); //// TODO
   uint32_t tmp_val;
 
@@ -1339,6 +1343,7 @@ static void bl602_expander_set_intmod(uint8_t gpio_pin,
 
 static int bl602_expander_get_intstatus(uint8_t gpio_pin)
 {
+  #warning Halt for invalid gpio_pin //// TODO
   uint32_t tmp_val = 0;
 
   if (gpio_pin < 28)
@@ -1362,6 +1367,7 @@ static int bl602_expander_get_intstatus(uint8_t gpio_pin)
 
 static void bl602_expander_intclear(uint8_t gpio_pin, uint8_t int_clear)
 {
+  #warning Halt for invalid gpio_pin //// TODO
   if (gpio_pin < 28)
     {
       /* GPIO0 ~ GPIO27 */
