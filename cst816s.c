@@ -43,11 +43,7 @@
  * Pre-Processor Definitions
  ****************************************************************************/
 
-#ifdef CONFIG_INPUT_CYPRESS_MBR3108_DEBUG
-#  define mbr3108_dbg(x, ...)   _info(x, ##__VA_ARGS__)
-#else
-#  define mbr3108_dbg(x, ...)   iinfo(x, ##__VA_ARGS__)
-#endif
+#define CONFIG_INPUT_CYPRESS_MBR3108_NPOLLWAITERS 1  ////  TODO
 
 /* Register macros */
 
@@ -189,8 +185,8 @@ struct mbr3108_dev_s
 
   /* Configuration for device. */
 
-  struct mbr3108_board_s *board;
-  const struct mbr3108_sensor_conf_s *sensor_conf;
+  ////TODO: struct mbr3108_board_s *board;
+  ////TODO: const struct mbr3108_sensor_conf_s *sensor_conf;
   sem_t devsem;
   uint8_t cref;
   struct mbr3108_debug_conf_s debug_conf;
@@ -347,7 +343,7 @@ static int mbr3108_i2c_read(FAR struct mbr3108_dev_s *dev, uint8_t reg,
           ret = I2C_RESET(dev->i2c);
           if (ret < 0)
             {
-              mbr3108_dbg("I2C_RESET failed: %d\n", ret);
+              iinfo("I2C_RESET failed: %d\n", ret);
               return ret;
             }
 #endif
@@ -376,7 +372,7 @@ static int mbr3108_check_cmd_status(FAR struct mbr3108_dev_s *dev)
   ret = mbr3108_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
   if (ret < 0)
     {
-      mbr3108_dbg("cmd status get failed. ret=%d\n", ret);
+      iinfo("cmd status get failed. ret=%d\n", ret);
       return ret;
     }
 
@@ -384,7 +380,7 @@ static int mbr3108_check_cmd_status(FAR struct mbr3108_dev_s *dev)
   cmd_status = readbuf[MBR3108_CTRL_CMD_STATUS - MBR3108_CTRL_CMD];
   cmd_err    = readbuf[MBR3108_CTRL_CMD_ERR - MBR3108_CTRL_CMD];
 
-  mbr3108_dbg("cmd: %d, status: %d, err: %d\n", cmd, cmd_status, cmd_err);
+  iinfo("cmd: %d, status: %d, err: %d\n", cmd, cmd_status, cmd_err);
 
   if (cmd != MBR3108_CMD_COMPLETED)
     {
@@ -410,7 +406,7 @@ static int mbr3108_save_check_crc(FAR struct mbr3108_dev_s *dev)
   ret = mbr3108_i2c_write(dev, reg, &cmd, 1);
   if (ret < 0)
     {
-      mbr3108_dbg("MBR3108_CTRL_CMD:CHECK_CONFIG_CRC write failed.\n");
+      iinfo("MBR3108_CTRL_CMD:CHECK_CONFIG_CRC write failed.\n");
       return ret;
     }
 
@@ -434,7 +430,7 @@ static int mbr3108_software_reset(FAR struct mbr3108_dev_s *dev)
   ret = mbr3108_i2c_write(dev, reg, &cmd, 1);
   if (ret < 0)
     {
-      mbr3108_dbg("MBR3108_CTRL_CMD:SOFTWARE_RESET write failed.\n");
+      iinfo("MBR3108_CTRL_CMD:SOFTWARE_RESET write failed.\n");
       return ret;
     }
 
@@ -458,7 +454,7 @@ static int mbr3108_enter_low_power_mode(FAR struct mbr3108_dev_s *dev)
   ret = mbr3108_i2c_write(dev, reg, &cmd, 1);
   if (ret < 0)
     {
-      mbr3108_dbg("MBR3108_CTRL_CMD:SOFTWARE_RESET write failed.\n");
+      iinfo("MBR3108_CTRL_CMD:SOFTWARE_RESET write failed.\n");
       return ret;
     }
 
@@ -478,7 +474,7 @@ static int mbr3108_clear_latched(FAR struct mbr3108_dev_s *dev)
   ret = mbr3108_i2c_write(dev, reg, &cmd, 1);
   if (ret < 0)
     {
-      mbr3108_dbg("MBR3108_CTRL_CMD:  "
+      iinfo("MBR3108_CTRL_CMD:  "
                   "MBR3108_CMD_CLEAR_LATCHED write failed.\n");
       return ret;
     }
@@ -514,7 +510,7 @@ static int mbr3108_debug_setup(FAR struct mbr3108_dev_s *dev,
   ret = mbr3108_i2c_write(dev, reg, &conf->debug_sensor_id, 1);
   if (ret < 0)
     {
-      mbr3108_dbg("MBR3108_SENSOR_ID write failed.\n");
+      iinfo("MBR3108_SENSOR_ID write failed.\n");
 
       dev->debug_conf.debug_mode = false;
     }
@@ -536,7 +532,7 @@ static int
   ret = mbr3108_i2c_read(dev, MBR3108_CTRL_CMD, &value, 1);
   if (ret < 0)
     {
-      mbr3108_dbg("MBR3108_CTRL_CMD read failed.\n");
+      iinfo("MBR3108_CTRL_CMD read failed.\n");
       return ret;
     }
 
@@ -551,25 +547,25 @@ static int
                           last_reg - start_reg + 1);
   if (ret < 0)
     {
-      mbr3108_dbg("MBR3108 configuration write failed.\n");
+      iinfo("MBR3108 configuration write failed.\n");
       return ret;
     }
 
   ret = mbr3108_save_check_crc(dev);
   if (ret < 0)
     {
-      mbr3108_dbg("MBR3108 save check CRC failed. ret=%d\n", ret);
+      iinfo("MBR3108 save check CRC failed. ret=%d\n", ret);
       return ret;
     }
 
   ret = mbr3108_software_reset(dev);
   if (ret < 0)
     {
-      mbr3108_dbg("MBR3108 software reset failed.\n");
+      iinfo("MBR3108 software reset failed.\n");
       return ret;
     }
 
-  dev->board->irq_enable(dev->board, true);
+  ////TODO: dev->board->irq_enable(dev->board, true);
 
   return 0;
 }
@@ -593,7 +589,7 @@ static int mbr3108_get_sensor_status(FAR struct mbr3108_dev_s *dev,
   ret = mbr3108_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
   if (ret < 0)
     {
-      mbr3108_dbg("Sensor status read failed.\n");
+      iinfo("Sensor status read failed.\n");
 
       return ret;
     }
@@ -612,7 +608,7 @@ static int mbr3108_get_sensor_status(FAR struct mbr3108_dev_s *dev,
 
   memcpy(buf, &status, sizeof(status));
 
-  mbr3108_dbg("but: %x, prox: %x; latched[btn: %x, prox: %x]\n",
+  iinfo("but: %x, prox: %x; latched[btn: %x, prox: %x]\n",
               status.button, status.proximity, status.latched_button,
               status.latched_button);
 
@@ -641,7 +637,7 @@ static int mbr3108_get_sensor_debug_data(FAR struct mbr3108_dev_s *dev,
       ret = mbr3108_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
       if (ret < 0)
         {
-          mbr3108_dbg("Sensor debug data read failed.\n");
+          iinfo("Sensor debug data read failed.\n");
 
           return ret;
         }
@@ -678,7 +674,7 @@ static int mbr3108_get_sensor_debug_data(FAR struct mbr3108_dev_s *dev,
 
   memcpy(buf, &data, sizeof(data));
 
-  mbr3108_dbg("avg_cnt: %d, baseline: %d, diff_cnt: %d, raw_cnt: %d, "
+  iinfo("avg_cnt: %d, baseline: %d, diff_cnt: %d, raw_cnt: %d, "
               "total_cp: %d\n",
               data.sensor_average_counts, data.sensor_baseline,
               data.sensor_diff_counts, data.sensor_raw_counts,
@@ -708,7 +704,7 @@ static int mbr3108_probe_device(FAR struct mbr3108_dev_s *dev)
     {
       /* Failed to read registers from device. */
 
-      mbr3108_dbg("Probe failed.\n");
+      iinfo("Probe failed.\n");
 
       return ret;
     }
@@ -720,15 +716,15 @@ static int mbr3108_probe_device(FAR struct mbr3108_dev_s *dev)
            (readbuf[MBR3108_DEVICE_ID + 1 - start_reg] << 8);
   dev_rev = readbuf[MBR3108_DEVICE_REV - start_reg];
 
-  mbr3108_dbg("family_id: 0x%02x, device_id: 0x%04x, device_rev: %d\n",
+  iinfo("family_id: 0x%02x, device_id: 0x%04x, device_rev: %d\n",
               fam_id, dev_id, dev_rev);
 
   if (fam_id != MBR3108_EXPECTED_FAMILY_ID ||
       dev_id != MBR3108_EXPECTED_DEVICE_ID ||
       dev_rev != MBR3108_EXPECTED_DEVICE_REV)
     {
-      mbr3108_dbg("Probe failed, dev-id mismatch!\n");
-      mbr3108_dbg("  Expected: family_id: 0x%02x, device_id: "
+      iinfo("Probe failed, dev-id mismatch!\n");
+      iinfo("  Expected: family_id: 0x%02x, device_id: "
                   "0x%04x, device_rev: %d\n",
                   MBR3108_EXPECTED_FAMILY_ID,
                   MBR3108_EXPECTED_DEVICE_ID,
@@ -894,11 +890,13 @@ static int mbr3108_open(FAR struct file *filep)
     {
       /* First user, do power on. */
 
+#ifdef TODO ////
       ret = priv->board->set_power(priv->board, true);
       if (ret < 0)
         {
           goto out_sem;
         }
+#endif  ////  TODO
 
       /* Let chip to power up before probing */
 
@@ -911,10 +909,11 @@ static int mbr3108_open(FAR struct file *filep)
         {
           /* No such device. Power off the switch. */
 
-          priv->board->set_power(priv->board, false);
+          ////TODO: priv->board->set_power(priv->board, false);
           goto out_sem;
         }
 
+#ifdef TODO ////
       if (priv->sensor_conf)
         {
           /* Do configuration. */
@@ -928,6 +927,7 @@ static int mbr3108_open(FAR struct file *filep)
               goto out_sem;
             }
         }
+#endif  ////  TODO
 
       priv->cref = use_count;
     }
@@ -968,7 +968,7 @@ static int mbr3108_close(FAR struct file *filep)
     {
       /* Disable interrupt */
 
-      priv->board->irq_enable(priv->board, false);
+      ////TODO: priv->board->irq_enable(priv->board, false);
 
       /* Set chip in low-power mode. */
 
@@ -976,7 +976,7 @@ static int mbr3108_close(FAR struct file *filep)
 
       /* Last user, do power off. */
 
-      priv->board->set_power(priv->board, false);
+      ////TODO: priv->board->set_power(priv->board, false);
 
       priv->debug_conf.debug_mode = false;
       priv->cref = use_count;
@@ -1004,7 +1004,7 @@ static void mbr3108_poll_notify(FAR struct mbr3108_dev_s *priv)
       struct pollfd *fds = priv->fds[i];
       if (fds)
         {
-          mbr3108_dbg("Report events: %02x\n", fds->revents);
+          iinfo("Report events: %02x\n", fds->revents);
 
           fds->revents |= POLLIN;
           nxsem_post(fds->sem);
@@ -1112,11 +1112,9 @@ static int mbr3108_isr_handler(int irq, FAR void *context, FAR void *arg)
  * Public Functions
  ****************************************************************************/
 
-int cypress_mbr3108_register(FAR const char *devpath,
+int cst816s_register(FAR const char *devpath,
                              FAR struct i2c_master_s *i2c_dev,
-                             uint8_t i2c_devaddr,
-                             struct mbr3108_board_s *board_config,
-                             const struct mbr3108_sensor_conf_s *sensor_conf)
+                             uint8_t i2c_devaddr)
 {
   struct mbr3108_dev_s *priv;
   int ret = 0;
@@ -1126,7 +1124,7 @@ int cypress_mbr3108_register(FAR const char *devpath,
   priv = kmm_zalloc(sizeof(struct mbr3108_dev_s));
   if (!priv)
     {
-      mbr3108_dbg("Memory cannot be allocated for mbr3108 sensor\n");
+      iinfo("Memory cannot be allocated for mbr3108 sensor\n");
       return -ENOMEM;
     }
 
@@ -1134,8 +1132,6 @@ int cypress_mbr3108_register(FAR const char *devpath,
 
   priv->addr = i2c_devaddr;
   priv->i2c = i2c_dev;
-  priv->board = board_config;
-  priv->sensor_conf = sensor_conf;
 
   nxsem_init(&priv->devsem, 0, 1);
 
@@ -1143,16 +1139,16 @@ int cypress_mbr3108_register(FAR const char *devpath,
   if (ret < 0)
     {
       kmm_free(priv);
-      mbr3108_dbg("Error occurred during the driver registering\n");
+      iinfo("Error occurred during the driver registering\n");
       return ret;
     }
 
-  mbr3108_dbg("Registered with %d\n", ret);
+  iinfo("Registered with %d\n", ret);
 
   /* Prepare interrupt line and handler. */
 
-  priv->board->irq_attach(priv->board, mbr3108_isr_handler, priv);
-  priv->board->irq_enable(priv->board, false);
+  ////TODO: priv->board->irq_attach(priv->board, mbr3108_isr_handler, priv);
+  ////TODO: priv->board->irq_enable(priv->board, false);
 
   return 0;
 }

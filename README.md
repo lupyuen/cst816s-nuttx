@@ -1,4 +1,4 @@
-# Hynitron CST816S Touch Panel Driver for Apache NuttX RTOS
+# Hynitron CST816S Touch Controller Driver for Apache NuttX RTOS
 
 See https://lupyuen.github.io/articles/pinedio2#touch-panel
 

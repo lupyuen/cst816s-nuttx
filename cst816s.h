@@ -121,10 +121,8 @@ struct mbr3108_board_s
 
 /* Device registration */
 
-int cypress_mbr3108_register(FAR const char *devpath,
-                        FAR struct i2c_master_s *dev,
-                        uint8_t i2c_devaddr,
-                        struct mbr3108_board_s *board_config,
-                        const struct mbr3108_sensor_conf_s *sensor_conf);
+int cst816s_register(FAR const char *devpath,
+                             FAR struct i2c_master_s *i2c_dev,
+                             uint8_t i2c_devaddr);
 
 #endif /* __INCLUDE_NUTTX_INPUT_CYPRESS_MBR3108_H */
