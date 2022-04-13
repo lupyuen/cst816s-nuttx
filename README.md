@@ -72,6 +72,9 @@ https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602e
 
 ```c
 #ifdef CONFIG_INPUT_CST816S
+/* I2C Address of CST816S Touch Controller */
+
+#define CST816S_DEVICE_ADDRESS 0x15
 #include <nuttx/input/cst816s.h>
 #endif /* CONFIG_INPUT_CST816S */
 ...
@@ -89,7 +92,7 @@ int bl602_bringup(void)
 
   /* Register the CST816S driver */
 
-  ret = cst816s_register("/dev/input0", cst816s_i2c_bus, 0x15);
+  ret = cst816s_register("/dev/input0", cst816s_i2c_bus, CST816S_DEVICE_ADDRESS);
   if (ret < 0)
     {
       _err("ERROR: Failed to register CST816S\n");
