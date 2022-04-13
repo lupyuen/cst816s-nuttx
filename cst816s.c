@@ -37,7 +37,7 @@
 #include <nuttx/signal.h>
 #include <nuttx/i2c/i2c_master.h>
 
-#include <nuttx/input/cypress_mbr3108.h>
+#include <nuttx/input/cst816s.h>
 
 /****************************************************************************
  * Pre-Processor Definitions
