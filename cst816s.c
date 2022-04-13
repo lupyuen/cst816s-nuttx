@@ -1128,7 +1128,7 @@ int cst816s_register(FAR const char *devpath,
   priv = kmm_zalloc(sizeof(struct cst816s_dev_s));
   if (!priv)
     {
-      iinfo("Memory cannot be allocated for driver\n");
+      ierr("Memory allocation failed\n");
       return -ENOMEM;
     }
 
@@ -1143,16 +1143,29 @@ int cst816s_register(FAR const char *devpath,
   if (ret < 0)
     {
       kmm_free(priv);
-      iinfo("Error occurred during driver registration\n");
+      ierr("Driver registration failed\n");
       return ret;
     }
 
-  iinfo("Registered with %d\n", ret);
-
   /* Prepare interrupt line and handler. */
 
-  bl602_irq_attach(priv, cst816s_isr_handler, priv);
-  bl602_irq_enable(priv, false);
+  ret = bl602_irq_attach(priv, cst816s_isr_handler, priv);
+  if (ret < 0)
+    {
+      kmm_free(priv);
+      ierr("Attach interrupt failed\n");
+      return ret;
+    }
+
+  ret = bl602_irq_enable(priv, false);
+  if (ret < 0)
+    {
+      kmm_free(priv);
+      ierr("Disable interrupt failed\n");
+      return ret;
+    }
+
+  iinfo("Driver registered\n");
 
   return 0;
 }
