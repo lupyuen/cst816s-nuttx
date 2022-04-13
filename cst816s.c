@@ -37,6 +37,7 @@
 #include <nuttx/signal.h>
 #include <nuttx/i2c/i2c_master.h>
 
+#include <nuttx/input/touchscreen.h>
 #include <nuttx/input/cst816s.h>
 
 #include "../arch/risc-v/src/bl602/bl602_gpio.h"  ////  TODO
@@ -48,7 +49,12 @@
 
 #define CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS 10  ////  TODO
 
-/* Register macros */
+/* CST816S Registers for Touch Data and Chip ID */
+
+#define CST816S_REG_TOUCHDATA 0x00
+#define CST816S_REG_CHIPID    0xA7
+
+/* Unused */
 
 #define CST816S_SENSOR_EN                   0x0
 #define CST816S_FSS_EN                      0x02
@@ -141,7 +147,7 @@
 #define CST816S_DEBUG_AVG_RAW_COUNT0        0xe4
 #define CST816S_SYNC_COUNTER2               0xe7
 
-/* Device commands for CST816S_CTRL_CMD */
+/* Unused: Device commands for CST816S_CTRL_CMD */
 
 #define CST816S_CMD_COMPLETED                               0
 #define CST816S_CMD_CHECK_CONFIG_CRC                        2
@@ -156,13 +162,13 @@
 #define CST816S_CMD_STATUS_ERROR                            1
 #define CST816S_CMD_STATUS_MASK                             1
 
-/* Completion times for device commands */
+/* Unused: Completion times for device commands */
 
 #define CST816S_CMD_MSECS_CHECK_CONFIG_CRC                  280 /* >220 (typ.) */
 #define CST816S_CMD_MSECS_SOFTWARE_RESET                    50
 #define CST816S_CMD_MSECS_CLEAR_LATCHED                     50
 
-/* Other macros */
+/* Unused: Other macros */
 
 #define CST816S_I2C_RETRIES                 10
 #define CST816S_NUM_SENSORS                 8
@@ -240,6 +246,7 @@ static const struct file_operations g_cst816s_fileops =
 static int cst816s_i2c_write(FAR struct cst816s_dev_s *dev, uint8_t reg,
                              const uint8_t *buf, size_t buflen)
 {
+  iinfo("\n"); ////
   struct i2c_msg_s msgv[2] =
   {
     {
@@ -294,12 +301,17 @@ static int cst816s_i2c_write(FAR struct cst816s_dev_s *dev, uint8_t reg,
 static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
                             uint8_t *buf, size_t buflen)
 {
+  iinfo("\n"); ////
   struct i2c_msg_s msgv[2] =
   {
     {
       .frequency = CONFIG_CST816S_I2C_FREQUENCY,
       .addr      = dev->addr,
-      .flags     = 0,
+#ifdef CONFIG_BL602_I2C0
+      .flags     = I2C_M_NOSTART,  /* BL602 must send Register ID as Sub Address */
+#else
+      .flags     = 0,  /* Otherwise send Register ID normally */
+#endif /* CONFIG_BL602_I2C0 */
       .buffer    = &reg,
       .length    = 1
     },
@@ -364,6 +376,7 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
 
 static int cst816s_check_cmd_status(FAR struct cst816s_dev_s *dev)
 {
+  iinfo("\n"); ////
   const uint8_t start_reg = CST816S_CTRL_CMD;
   const uint8_t last_reg = CST816S_CTRL_CMD_ERR;
   uint8_t readbuf[CST816S_CTRL_CMD_ERR - CST816S_CTRL_CMD + 1];
@@ -406,6 +419,7 @@ static int cst816s_check_cmd_status(FAR struct cst816s_dev_s *dev)
 
 static int cst816s_save_check_crc(FAR struct cst816s_dev_s *dev)
 {
+  iinfo("\n"); ////
   uint8_t reg = CST816S_CTRL_CMD;
   uint8_t cmd = CST816S_CMD_CHECK_CONFIG_CRC;
   int ret;
@@ -430,6 +444,7 @@ static int cst816s_save_check_crc(FAR struct cst816s_dev_s *dev)
 
 static int cst816s_software_reset(FAR struct cst816s_dev_s *dev)
 {
+  iinfo("\n"); ////
   uint8_t reg = CST816S_CTRL_CMD;
   uint8_t cmd = CST816S_CMD_SOFTWARE_RESET;
   int ret;
@@ -454,6 +469,7 @@ static int cst816s_software_reset(FAR struct cst816s_dev_s *dev)
 
 static int cst816s_enter_low_power_mode(FAR struct cst816s_dev_s *dev)
 {
+  iinfo("\n"); ////
   uint8_t reg = CST816S_CTRL_CMD;
   uint8_t cmd = CST816S_CMD_ENTER_LOW_POWER_MODE;
   int ret;
@@ -474,6 +490,7 @@ static int cst816s_enter_low_power_mode(FAR struct cst816s_dev_s *dev)
 
 static int cst816s_clear_latched(FAR struct cst816s_dev_s *dev)
 {
+  iinfo("\n"); ////
   uint8_t reg = CST816S_CTRL_CMD;
   uint8_t cmd = CST816S_CMD_CLEAR_LATCHED;
   int ret;
@@ -500,6 +517,7 @@ static int cst816s_clear_latched(FAR struct cst816s_dev_s *dev)
 static int cst816s_debug_setup(FAR struct cst816s_dev_s *dev,
                                FAR const struct cst816s_debug_conf_s *conf)
 {
+  iinfo("\n"); ////
   uint8_t reg = CST816S_SENSOR_ID;
   int ret;
 
@@ -529,6 +547,7 @@ static int
   cst816s_device_configuration(FAR struct cst816s_dev_s *dev,
                                FAR const struct cst816s_sensor_conf_s *conf)
 {
+  iinfo("\n"); ////
   const uint8_t start_reg = CST816S_SENSOR_EN;
   const uint8_t last_reg = CST816S_CONFIG_CRC + 1;
   uint8_t value;
@@ -577,186 +596,107 @@ static int
   return 0;
 }
 
-static int cst816s_get_sensor_status(FAR struct cst816s_dev_s *dev,
-                                     FAR void *buf)
+static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 {
-  struct cst816s_sensor_status_s status =
-  {
-  };
-
-  const uint8_t start_reg = CST816S_BUTTON_STAT;
-  const uint8_t last_reg = CST816S_LATCHED_PROX_STAT;
-  uint8_t readbuf[CST816S_LATCHED_PROX_STAT - CST816S_BUTTON_STAT + 1];
+  iinfo("\n"); ////
+  struct touch_sample_s data;
+  uint8_t readbuf[7];
   int ret;
 
-  DEBUGASSERT(last_reg - start_reg + 1 == sizeof(readbuf));
+  /* Read the raw touch data. */
 
-  /* Attempt to sensor status registers. */
-
-  ret = cst816s_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
+  ret = cst816s_i2c_read(dev, CST816S_REG_TOUCHDATA, readbuf, sizeof(readbuf));
   if (ret < 0)
     {
-      iinfo("Sensor status read failed.\n");
-
+      iinfo("Read touch data failed\n");
       return ret;
     }
 
-  status.button            =
-    (readbuf[CST816S_BUTTON_STAT + 0 - start_reg]) |
-    (readbuf[CST816S_BUTTON_STAT + 1 - start_reg] << 8);
-  status.proximity         =
-    readbuf[CST816S_PROX_STAT - start_reg];
+  /* Interpret the raw touch data. */
 
-  status.latched_button    =
-    (readbuf[CST816S_LATCHED_BUTTON_STAT + 0 - start_reg]) |
-    (readbuf[CST816S_LATCHED_BUTTON_STAT + 1 - start_reg] << 8);
-  status.latched_proximity =
-    readbuf[CST816S_LATCHED_PROX_STAT - start_reg];
+  uint8_t idhigh = readbuf[0] & 0x0f;
+  uint8_t idlow  = readbuf[1];
+  uint8_t touchpoints = readbuf[2] & 0x0f;  /* Touch Points can only be 0 or 1. */
+  uint8_t xhigh = readbuf[3] & 0x0f;
+  uint8_t xlow  = readbuf[4];
+  uint8_t yhigh = readbuf[5] & 0x0f;
+  uint8_t ylow  = readbuf[6];
+  uint16_t id = (idhigh << 8) | idlow;
+  uint16_t x  = (xhigh  << 8) | xlow;
+  uint16_t y  = (yhigh  << 8) | ylow;
 
-  memcpy(buf, &status, sizeof(status));
+  /* Validate the touch coordinates. */
 
-  iinfo("but: %x, prox: %x; latched[btn: %x, prox: %x]\n",
-              status.button, status.proximity, status.latched_button,
-              status.latched_button);
+  bool valid = true;
+  if (x >= 240 || y >= 240) {
+    valid = false;
+    iwarn("Invalid touch data: x=%d, y=%d\n", x, y);
+  }
 
-  return 0;
-}
+  /* Set the touch data fields. */
 
-static int cst816s_get_sensor_debug_data(FAR struct cst816s_dev_s *dev,
-                                         FAR void *buf)
-{
-  struct cst816s_sensor_debug_s data =
-  {
-  };
+  memset(&data, 0, sizeof(data));
+  data.npoints     = 1;
+  data.point[0].id = id;
+  data.point[0].x  = x;
+  data.point[0].y  = y;
 
-  const uint8_t start_reg = CST816S_SYNC_COUNTER1;
-  const uint8_t last_reg = CST816S_SYNC_COUNTER2;
-  uint8_t readbuf[CST816S_SYNC_COUNTER2 - CST816S_SYNC_COUNTER1 + 1];
-  uint8_t sync1;
-  uint8_t sync2;
-  int ret;
-  int retries;
+  /* Set the touch flags. */
 
-  DEBUGASSERT(last_reg - start_reg + 1 == sizeof(readbuf));
-
-  for (retries = CST816S_SYNC_RETRIES; retries > 0; retries--)
+  if (touchpoints > 0)  /* Panel was touched. */
     {
-      ret = cst816s_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
-      if (ret < 0)
+      if (valid)  /* Touch coordinates were valid. */
         {
-          iinfo("Sensor debug data read failed.\n");
-
-          return ret;
+          data.point[0].flags  = TOUCH_DOWN | TOUCH_ID_VALID | TOUCH_POS_VALID;
         }
-
-      /* Sync counters need to match. */
-
-      sync1 = readbuf[CST816S_SYNC_COUNTER1 - start_reg];
-      sync2 = readbuf[CST816S_SYNC_COUNTER2 - start_reg];
-
-      if (sync1 == sync2)
+      else  /* Touch coordinates were invalid. */
         {
-          break;
+          data.point[0].flags  = TOUCH_DOWN | TOUCH_ID_VALID;
+        }
+    }
+  else  /* Panel was just untouched. */
+    {
+      if (valid)  /* Touch coordinates were valid. */
+        {
+          data.point[0].flags  = TOUCH_UP | TOUCH_ID_VALID | TOUCH_POS_VALID;
+        }
+      else  /* Touch coordinates were invalid. */
+        {
+          data.point[0].flags  = TOUCH_UP | TOUCH_ID_VALID;
         }
     }
 
-  if (retries == 0)
-    {
-      return -EIO;
-    }
-
-  data.sensor_average_counts =
-      (readbuf[CST816S_DEBUG_AVG_RAW_COUNT0 + 0 - start_reg]) |
-      (readbuf[CST816S_DEBUG_AVG_RAW_COUNT0 + 1 - start_reg] << 8);
-  data.sensor_baseline =
-      (readbuf[CST816S_DEBUG_BASELINE0 + 0 - start_reg]) |
-      (readbuf[CST816S_DEBUG_BASELINE0 + 1 - start_reg] << 8);
-  data.sensor_diff_counts =
-      (readbuf[CST816S_DEBUG_DIFFERENCE_COUNT0 + 0 - start_reg]) |
-      (readbuf[CST816S_DEBUG_DIFFERENCE_COUNT0 + 1 - start_reg] << 8);
-  data.sensor_raw_counts =
-      (readbuf[CST816S_DEBUG_RAW_COUNT0 + 0 - start_reg]) |
-      (readbuf[CST816S_DEBUG_RAW_COUNT0 + 1 - start_reg] << 8);
-  data.sensor_total_capacitance = readbuf[CST816S_DEBUG_CP - start_reg];
+  /* Return the touch data. */
 
   memcpy(buf, &data, sizeof(data));
 
-  iinfo("avg_cnt: %d, baseline: %d, diff_cnt: %d, raw_cnt: %d, "
-              "total_cp: %d\n",
-              data.sensor_average_counts, data.sensor_baseline,
-              data.sensor_diff_counts, data.sensor_raw_counts,
-              data.sensor_total_capacitance);
+  iinfo("  id:      %d\n",   data.point[0].id);
+  iinfo("  flags:   %02x\n", data.point[0].flags);
+  iinfo("  x:       %d\n",   data.point[0].x);
+  iinfo("  y:       %d\n",   data.point[0].y);
 
-  return 0;
-}
-
-static int cst816s_probe_device(FAR struct cst816s_dev_s *dev)
-{
-  const uint8_t start_reg = CST816S_FAMILY_ID;
-  const uint8_t last_reg = CST816S_DEVICE_REV;
-  uint8_t readbuf[CST816S_DEVICE_REV - CST816S_FAMILY_ID + 1];
-  uint8_t fam_id;
-  uint16_t dev_id;
-  uint8_t dev_rev;
-  int ret;
-
-  DEBUGASSERT(last_reg - start_reg + 1 == sizeof(readbuf));
-
-  /* Attempt to read device identification registers with multi-byte
-   * read.
-   */
-
-  ret = cst816s_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
-  if (ret < 0)
-    {
-      /* Failed to read registers from device. */
-
-      iinfo("Probe failed.\n");
-
-      return ret;
-    }
-
-  /* Check result. */
-
-  fam_id = readbuf[CST816S_FAMILY_ID - start_reg];
-  dev_id = (readbuf[CST816S_DEVICE_ID + 0 - start_reg]) |
-           (readbuf[CST816S_DEVICE_ID + 1 - start_reg] << 8);
-  dev_rev = readbuf[CST816S_DEVICE_REV - start_reg];
-
-  iinfo("family_id: 0x%02x, device_id: 0x%04x, device_rev: %d\n",
-              fam_id, dev_id, dev_rev);
-
-  if (fam_id != CST816S_EXPECTED_FAMILY_ID ||
-      dev_id != CST816S_EXPECTED_DEVICE_ID ||
-      dev_rev != CST816S_EXPECTED_DEVICE_REV)
-    {
-      iinfo("Probe failed, dev-id mismatch!\n");
-      iinfo("  Expected: family_id: 0x%02x, device_id: "
-                  "0x%04x, device_rev: %d\n",
-                  CST816S_EXPECTED_FAMILY_ID,
-                  CST816S_EXPECTED_DEVICE_ID,
-                  CST816S_EXPECTED_DEVICE_REV);
-
-      return -ENXIO;
-    }
-
-  return 0;
+  return sizeof(data);
 }
 
 static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
                             size_t buflen)
 {
+  iinfo("\n"); ////
   FAR struct inode *inode;
   FAR struct cst816s_dev_s *priv;
   size_t outlen;
   irqstate_t flags;
   int ret;
 
+  DEBUGASSERT(buffer);
+  DEBUGASSERT(buflen > 0);
   DEBUGASSERT(filep);
   inode = filep->f_inode;
 
   DEBUGASSERT(inode && inode->i_private);
   priv = inode->i_private;
+
+  /* Wait for semaphore to prevent concurrent reads */
 
   ret = nxsem_wait(&priv->devsem);
   if (ret < 0)
@@ -766,26 +706,21 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
 
   ret = -EINVAL;
 
-  if (priv->debug_conf.debug_mode)
+  /* Read the touch data over I2C. */
+
+  outlen = sizeof(struct touch_sample_s);
+  if (buflen >= outlen)
     {
-      outlen = sizeof(struct cst816s_sensor_debug_s);
-      if (buflen >= outlen)
-        {
-          ret = cst816s_get_sensor_debug_data(priv, buffer);
-        }
+      ret = cst816s_get_touch_data(priv, buffer);
     }
-  else
-    {
-      outlen = sizeof(struct cst816s_sensor_status_s);
-      if (buflen >= outlen)
-        {
-          ret = cst816s_get_sensor_status(priv, buffer);
-        }
-    }
+
+  /* Clear pending flag with critical section */
 
   flags = enter_critical_section();
   priv->int_pending = false;
   leave_critical_section(flags);
+
+  /* Release semaphore and allow next read */
 
   nxsem_post(&priv->devsem);
   return ret < 0 ? ret : outlen;
@@ -794,6 +729,7 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
 static ssize_t cst816s_write(FAR struct file *filep, FAR const char *buffer,
                              size_t buflen)
 {
+  iinfo("\n"); ////
   FAR struct inode *inode;
   FAR struct cst816s_dev_s *priv;
   enum cst816s_cmd_e type;
@@ -875,6 +811,7 @@ out:
 
 static int cst816s_open(FAR struct file *filep)
 {
+  iinfo("\n"); ////
   FAR struct inode *inode;
   FAR struct cst816s_dev_s *priv;
   unsigned int use_count;
@@ -895,9 +832,9 @@ static int cst816s_open(FAR struct file *filep)
   use_count = priv->cref + 1;
   if (use_count == 1)
     {
+#ifdef TODO  ////  Power on
       /* First user, do power on. */
 
-#ifdef TODO ////
       ret = priv->board->set_power(priv->board, true);
       if (ret < 0)
         {
@@ -909,6 +846,7 @@ static int cst816s_open(FAR struct file *filep)
 
       nxsig_usleep(100 * 1000);
 
+#ifdef NOTUSED  //  Assume that device exists. It might not respond unless we tap the screen.
       /* Check that device exists on I2C. */
 
       ret = cst816s_probe_device(priv);
@@ -919,8 +857,9 @@ static int cst816s_open(FAR struct file *filep)
           ////TODO: priv->board->set_power(priv->board, false);
           goto out_sem;
         }
+#endif  //  NOTUSED
 
-#ifdef TODO ////
+#ifdef TODO  ////  Configure device
       if (priv->sensor_conf)
         {
           /* Do configuration. */
@@ -946,13 +885,14 @@ static int cst816s_open(FAR struct file *filep)
       ret = 0;
     }
 
-out_sem:
+////  out_sem:
   nxsem_post(&priv->devsem);
   return ret;
 }
 
 static int cst816s_close(FAR struct file *filep)
 {
+  iinfo("\n"); ////
   FAR struct inode *inode;
   FAR struct cst816s_dev_s *priv;
   int use_count;
@@ -1002,6 +942,7 @@ static int cst816s_close(FAR struct file *filep)
 
 static void cst816s_poll_notify(FAR struct cst816s_dev_s *priv)
 {
+  iinfo("\n"); ////
   int i;
 
   DEBUGASSERT(priv != NULL);
@@ -1022,6 +963,7 @@ static void cst816s_poll_notify(FAR struct cst816s_dev_s *priv)
 static int cst816s_poll(FAR struct file *filep, FAR struct pollfd *fds,
                         bool setup)
 {
+  iinfo("\n"); ////
   FAR struct cst816s_dev_s *priv;
   FAR struct inode *inode;
   bool pending;
@@ -1123,6 +1065,7 @@ int cst816s_register(FAR const char *devpath,
                      FAR struct i2c_master_s *i2c_dev,
                      uint8_t i2c_devaddr)
 {
+  iinfo("\n"); ////
   struct cst816s_dev_s *priv;
   int ret = 0;
 
@@ -1273,14 +1216,13 @@ static int bl602_irq_enable(bool enable)
 
 static int bl602_expander_interrupt(int irq, void *context, void *arg)
 {
-  FAR struct bl602_gpint_dev_s *dev = (FAR struct bl602_gpint_dev_s *)arg;
-
+  ////TODO: FAR struct bl602_gpint_dev_s *dev = (FAR struct bl602_gpint_dev_s *)arg;
   uint32_t time_out = 0;
   uint8_t gpio_pin;
 
   ////TODO: DEBUGASSERT(dev != NULL);
   DEBUGASSERT(bl602_expander_callback != NULL);
-  gpioinfo("Interrupt! callback=%p, arg=%p\n", bl602_expander_callback, arg);
+  gpioinfo("Interrupt! callback=%p, arg=%p\n", bl602_expander_callback, bl602_expander_arg);
 
   gpio_pin = (bl602_expander_pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
 
@@ -1306,9 +1248,8 @@ static int bl602_expander_interrupt(int irq, void *context, void *arg)
       bl602_expander_intclear(gpio_pin, 0);
     }
 
-  gpioinfo("Call callback=%p, arg=%p\n", bl602_expander_callback, arg);
-  #warning Call callback
-  ////TODO: bl602_expander_callback(irq, context, bl602_expander_arg);
+  gpioinfo("Call callback=%p, arg=%p\n", bl602_expander_callback, bl602_expander_arg);
+  bl602_expander_callback(irq, context, bl602_expander_arg);
   ////TODO Previously: bl602_expander_callback(&bl602xgpint->bl602gpio.gpio, gpio_pin);
 
   return OK;
