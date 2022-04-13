@@ -1,5 +1,5 @@
 /****************************************************************************
- * include/nuttx/input/cypress_mbr3108.h
+ * include/nuttx/input/cst816s.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_NUTTX_INPUT_CYPRESS_MBR3108_H
-#define __INCLUDE_NUTTX_INPUT_CYPRESS_MBR3108_H
+#ifndef __INCLUDE_NUTTX_INPUT_CYPRESS_CST816S_H
+#define __INCLUDE_NUTTX_INPUT_CYPRESS_CST816S_H
 
 /****************************************************************************
  * Included Files
@@ -33,69 +33,69 @@
  * Public Types
  ****************************************************************************/
 
-/* Sensor configuration for Cypress MBR3108 device */
+/* Sensor configuration */
 
-begin_packed_struct struct mbr3108_sensor_conf_s
+begin_packed_struct struct cst816s_sensor_conf_s
 {
   uint8_t conf_data[128];  /* Sensor configuration, generated with EZ-Click. */
 } end_packed_struct;
 
 /* Debug configuration */
 
-begin_packed_struct struct mbr3108_debug_conf_s
+begin_packed_struct struct cst816s_debug_conf_s
 {
   bool debug_mode;         /* Configure to debug mode if 'true'. */
   uint8_t debug_sensor_id; /* Sensor to read in debug mode. */
 } end_packed_struct;
 
-/* Write commands to MBR3108 driver. */
+/* Write commands to driver. */
 
-begin_packed_struct enum mbr3108_cmd_e
+begin_packed_struct enum cst816s_cmd_e
 {
-  CYPRESS_MBR3108_CMD_SENSOR_CONF = -3,
-  CYPRESS_MBR3108_CMD_DEBUG_CONF,
-  CYPRESS_MBR3108_CMD_CLEAR_LATCHED,
+  CYPRESS_CST816S_CMD_SENSOR_CONF = -3,
+  CYPRESS_CST816S_CMD_DEBUG_CONF,
+  CYPRESS_CST816S_CMD_CLEAR_LATCHED,
 } end_packed_struct;
 
-/* CYPRESS_MBR3108_CMD_SENSOR_CONF command structure.
+/* Command structure.
  * Used to reconfigure chip with new configuration generated using
  * EZ-Click tool.
  */
 
-begin_packed_struct struct mbr3108_cmd_sensor_conf_s
+begin_packed_struct struct cst816s_cmd_sensor_conf_s
 {
-  enum mbr3108_cmd_e id;
-  struct mbr3108_sensor_conf_s conf;
+  enum cst816s_cmd_e id;
+  struct cst816s_sensor_conf_s conf;
 } end_packed_struct;
 
-/* CYPRESS_MBR3108_CMD_DEBUG_CONF command structure.
+/* Command structure.
  * Use to enable debug output from chip/sensor,
- * see 'struct mbr3108_sensor_data_s'.
+ * see 'struct cst816s_sensor_data_s'.
  */
 
-begin_packed_struct struct mbr3108_cmd_debug_conf_s
+begin_packed_struct struct cst816s_cmd_debug_conf_s
 {
-  enum mbr3108_cmd_e id;
-  struct mbr3108_debug_conf_s conf;
+  enum cst816s_cmd_e id;
+  struct cst816s_debug_conf_s conf;
 } end_packed_struct;
 
 /* Sensor status output */
 
-begin_packed_struct struct mbr3108_sensor_status_s
+begin_packed_struct struct cst816s_sensor_status_s
 {
-  unsigned int button:8;            /* MBR3108 has maximum of 8 button sensors
+  unsigned int button:8;            /* ??? has maximum of 8 button sensors
                                      * configurable.
                                      * Each bit in this field indicate if
                                      * corresponding button is pressed. */
   unsigned int latched_button:8;
-  unsigned int proximity:2;         /* MBR3108 has maximum of 2 proximity
+  unsigned int proximity:2;         /* ??? has maximum of 2 proximity
                                      * sensors configurable. */
   unsigned int latched_proximity:2;
 } end_packed_struct;
 
 /* Sensor debug data output */
 
-begin_packed_struct struct mbr3108_sensor_debug_s
+begin_packed_struct struct cst816s_sensor_debug_s
 {
   uint8_t sensor_total_capacitance;
   uint16_t sensor_diff_counts;
@@ -106,13 +106,13 @@ begin_packed_struct struct mbr3108_sensor_debug_s
 
 /* Board configuration */
 
-struct mbr3108_board_s
+struct cst816s_board_s
 {
-  int (*irq_attach) (FAR struct mbr3108_board_s *state,
+  int (*irq_attach) (FAR struct cst816s_board_s *state,
                      xcpt_t isr,
                      FAR void *arg);
-  void (*irq_enable) (FAR struct mbr3108_board_s *state, bool enable);
-  int (*set_power) (FAR struct mbr3108_board_s *state, bool on);
+  void (*irq_enable) (FAR struct cst816s_board_s *state, bool enable);
+  int (*set_power) (FAR struct cst816s_board_s *state, bool on);
 };
 
 /****************************************************************************
@@ -125,4 +125,4 @@ int cst816s_register(FAR const char *devpath,
                              FAR struct i2c_master_s *i2c_dev,
                              uint8_t i2c_devaddr);
 
-#endif /* __INCLUDE_NUTTX_INPUT_CYPRESS_MBR3108_H */
+#endif /* __INCLUDE_NUTTX_INPUT_CYPRESS_CST816S_H */

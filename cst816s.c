@@ -1,5 +1,5 @@
 /****************************************************************************
- * drivers/input/cypress_mbr3108.c
+ * drivers/input/cst816s.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -43,140 +43,140 @@
  * Pre-Processor Definitions
  ****************************************************************************/
 
-#define CONFIG_INPUT_CYPRESS_MBR3108_NPOLLWAITERS 1  ////  TODO
+#define CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS 1  ////  TODO
 
 /* Register macros */
 
-#define MBR3108_SENSOR_EN                   0x0
-#define MBR3108_FSS_EN                      0x02
-#define MBR3108_TOGGLE_EN                   0x04
-#define MBR3108_LED_ON_EN                   0x06
-#define MBR3108_SENSITIVITY0                0x08
-#define MBR3108_SENSITIVITY1                0x09
-#define MBR3108_BASE_THRESHOLD0             0x0c
-#define MBR3108_BASE_THRESHOLD1             0x0d
-#define MBR3108_FINGER_THRESHOLD2           0x0e
-#define MBR3108_FINGER_THRESHOLD3           0x0f
-#define MBR3108_FINGER_THRESHOLD4           0x10
-#define MBR3108_FINGER_THRESHOLD5           0x11
-#define MBR3108_FINGER_THRESHOLD6           0x12
-#define MBR3108_FINGER_THRESHOLD7           0x13
-#define MBR3108_SENSOR_DEBOUNCE             0x1c
-#define MBR3108_BUTTON_HYS                  0x1d
-#define MBR3108_BUTTON_LBR                  0x1f
-#define MBR3108_BUTTON_NNT                  0x20
-#define MBR3108_BUTTON_NT                   0x21
-#define MBR3108_PROX_EN                     0x26
-#define MBR3108_PROX_CFG                    0x27
-#define MBR3108_PROX_CFG2                   0x28
-#define MBR3108_PROX_TOUCH_TH0              0x2a
-#define MBR3108_PROX_TOUCH_TH1              0x2c
-#define MBR3108_PROX_RESOLUTION0            0x2e
-#define MBR3108_PROX_RESOLUTION1            0x2f
-#define MBR3108_PROX_HYS                    0x30
-#define MBR3108_PROX_LBR                    0x32
-#define MBR3108_PROX_NNT                    0x33
-#define MBR3108_PROX_NT                     0x34
-#define MBR3108_PROX_POSITIVE_TH0           0x35
-#define MBR3108_PROX_POSITIVE_TH1           0x36
-#define MBR3108_PROX_NEGATIVE_TH0           0x39
-#define MBR3108_PROX_NEGATIVE_TH1           0x3a
-#define MBR3108_LED_ON_TIME                 0x3d
-#define MBR3108_BUZZER_CFG                  0x3e
-#define MBR3108_BUZZER_ON_TIME              0x3f
-#define MBR3108_GPO_CFG                     0x40
-#define MBR3108_PWM_DUTYCYCLE_CFG0          0x41
-#define MBR3108_PWM_DUTYCYCLE_CFG1          0x42
-#define MBR3108_PWM_DUTYCYCLE_CFG2          0x43
-#define MBR3108_PWM_DUTYCYCLE_CFG3          0x44
-#define MBR3108_SPO_CFG                     0x4c
-#define MBR3108_DEVICE_CFG0                 0x4d
-#define MBR3108_DEVICE_CFG1                 0x4e
-#define MBR3108_DEVICE_CFG2                 0x4f
-#define MBR3108_DEVICE_CFG3                 0x50
-#define MBR3108_I2C_ADDR                    0x51
-#define MBR3108_REFRESH_CTRL                0x52
-#define MBR3108_STATE_TIMEOUT               0x55
-#define MBR3108_CONFIG_CRC                  0x7e
-#define MBR3108_GPO_OUTPUT_STATE            0x80
-#define MBR3108_SENSOR_ID                   0x82
-#define MBR3108_CTRL_CMD                    0x86
-#define MBR3108_CTRL_CMD_STATUS             0x88
-#define MBR3108_CTRL_CMD_ERR                0x89
-#define MBR3108_SYSTEM_STATUS               0x8a
-#define MBR3108_PREV_CTRL_CMD_CODE          0x8c
-#define MBR3108_FAMILY_ID                   0x8f
-#define MBR3108_DEVICE_ID                   0x90
-#define MBR3108_DEVICE_REV                  0x92
-#define MBR3108_CALC_CRC                    0x94
-#define MBR3108_TOTAL_WORKING_SNS           0x97
-#define MBR3108_SNS_CP_HIGH                 0x98
-#define MBR3108_SNS_VDD_SHORT               0x9a
-#define MBR3108_SNS_GND_SHORT               0x9c
-#define MBR3108_SNS_SNS_SHORT               0x9e
-#define MBR3108_CMOD_SHIELD_TEST            0xa0
-#define MBR3108_BUTTON_STAT                 0xaa
-#define MBR3108_LATCHED_BUTTON_STAT         0xac
-#define MBR3108_PROX_STAT                   0xae
-#define MBR3108_LATCHED_PROX_STAT           0xaf
-#define MBR3108_SYNC_COUNTER0               0xb9
-#define MBR3108_DIFFERENCE_COUNT_SENSOR0    0xba
-#define MBR3108_DIFFERENCE_COUNT_SENSOR1    0xbc
-#define MBR3108_DIFFERENCE_COUNT_SENSOR2    0xbe
-#define MBR3108_DIFFERENCE_COUNT_SENSOR3    0xc0
-#define MBR3108_DIFFERENCE_COUNT_SENSOR4    0xc2
-#define MBR3108_DIFFERENCE_COUNT_SENSOR5    0xc4
-#define MBR3108_DIFFERENCE_COUNT_SENSOR6    0xc6
-#define MBR3108_DIFFERENCE_COUNT_SENSOR7    0xc8
-#define MBR3108_GPO_DATA                    0xda
-#define MBR3108_SYNC_COUNTER1               0xdb
-#define MBR3108_DEBUG_SENSOR_ID             0xdc
-#define MBR3108_DEBUG_CP                    0xdd
-#define MBR3108_DEBUG_DIFFERENCE_COUNT0     0xde
-#define MBR3108_DEBUG_BASELINE0             0xe0
-#define MBR3108_DEBUG_RAW_COUNT0            0xe2
-#define MBR3108_DEBUG_AVG_RAW_COUNT0        0xe4
-#define MBR3108_SYNC_COUNTER2               0xe7
+#define CST816S_SENSOR_EN                   0x0
+#define CST816S_FSS_EN                      0x02
+#define CST816S_TOGGLE_EN                   0x04
+#define CST816S_LED_ON_EN                   0x06
+#define CST816S_SENSITIVITY0                0x08
+#define CST816S_SENSITIVITY1                0x09
+#define CST816S_BASE_THRESHOLD0             0x0c
+#define CST816S_BASE_THRESHOLD1             0x0d
+#define CST816S_FINGER_THRESHOLD2           0x0e
+#define CST816S_FINGER_THRESHOLD3           0x0f
+#define CST816S_FINGER_THRESHOLD4           0x10
+#define CST816S_FINGER_THRESHOLD5           0x11
+#define CST816S_FINGER_THRESHOLD6           0x12
+#define CST816S_FINGER_THRESHOLD7           0x13
+#define CST816S_SENSOR_DEBOUNCE             0x1c
+#define CST816S_BUTTON_HYS                  0x1d
+#define CST816S_BUTTON_LBR                  0x1f
+#define CST816S_BUTTON_NNT                  0x20
+#define CST816S_BUTTON_NT                   0x21
+#define CST816S_PROX_EN                     0x26
+#define CST816S_PROX_CFG                    0x27
+#define CST816S_PROX_CFG2                   0x28
+#define CST816S_PROX_TOUCH_TH0              0x2a
+#define CST816S_PROX_TOUCH_TH1              0x2c
+#define CST816S_PROX_RESOLUTION0            0x2e
+#define CST816S_PROX_RESOLUTION1            0x2f
+#define CST816S_PROX_HYS                    0x30
+#define CST816S_PROX_LBR                    0x32
+#define CST816S_PROX_NNT                    0x33
+#define CST816S_PROX_NT                     0x34
+#define CST816S_PROX_POSITIVE_TH0           0x35
+#define CST816S_PROX_POSITIVE_TH1           0x36
+#define CST816S_PROX_NEGATIVE_TH0           0x39
+#define CST816S_PROX_NEGATIVE_TH1           0x3a
+#define CST816S_LED_ON_TIME                 0x3d
+#define CST816S_BUZZER_CFG                  0x3e
+#define CST816S_BUZZER_ON_TIME              0x3f
+#define CST816S_GPO_CFG                     0x40
+#define CST816S_PWM_DUTYCYCLE_CFG0          0x41
+#define CST816S_PWM_DUTYCYCLE_CFG1          0x42
+#define CST816S_PWM_DUTYCYCLE_CFG2          0x43
+#define CST816S_PWM_DUTYCYCLE_CFG3          0x44
+#define CST816S_SPO_CFG                     0x4c
+#define CST816S_DEVICE_CFG0                 0x4d
+#define CST816S_DEVICE_CFG1                 0x4e
+#define CST816S_DEVICE_CFG2                 0x4f
+#define CST816S_DEVICE_CFG3                 0x50
+#define CST816S_I2C_ADDR                    0x51
+#define CST816S_REFRESH_CTRL                0x52
+#define CST816S_STATE_TIMEOUT               0x55
+#define CST816S_CONFIG_CRC                  0x7e
+#define CST816S_GPO_OUTPUT_STATE            0x80
+#define CST816S_SENSOR_ID                   0x82
+#define CST816S_CTRL_CMD                    0x86
+#define CST816S_CTRL_CMD_STATUS             0x88
+#define CST816S_CTRL_CMD_ERR                0x89
+#define CST816S_SYSTEM_STATUS               0x8a
+#define CST816S_PREV_CTRL_CMD_CODE          0x8c
+#define CST816S_FAMILY_ID                   0x8f
+#define CST816S_DEVICE_ID                   0x90
+#define CST816S_DEVICE_REV                  0x92
+#define CST816S_CALC_CRC                    0x94
+#define CST816S_TOTAL_WORKING_SNS           0x97
+#define CST816S_SNS_CP_HIGH                 0x98
+#define CST816S_SNS_VDD_SHORT               0x9a
+#define CST816S_SNS_GND_SHORT               0x9c
+#define CST816S_SNS_SNS_SHORT               0x9e
+#define CST816S_CMOD_SHIELD_TEST            0xa0
+#define CST816S_BUTTON_STAT                 0xaa
+#define CST816S_LATCHED_BUTTON_STAT         0xac
+#define CST816S_PROX_STAT                   0xae
+#define CST816S_LATCHED_PROX_STAT           0xaf
+#define CST816S_SYNC_COUNTER0               0xb9
+#define CST816S_DIFFERENCE_COUNT_SENSOR0    0xba
+#define CST816S_DIFFERENCE_COUNT_SENSOR1    0xbc
+#define CST816S_DIFFERENCE_COUNT_SENSOR2    0xbe
+#define CST816S_DIFFERENCE_COUNT_SENSOR3    0xc0
+#define CST816S_DIFFERENCE_COUNT_SENSOR4    0xc2
+#define CST816S_DIFFERENCE_COUNT_SENSOR5    0xc4
+#define CST816S_DIFFERENCE_COUNT_SENSOR6    0xc6
+#define CST816S_DIFFERENCE_COUNT_SENSOR7    0xc8
+#define CST816S_GPO_DATA                    0xda
+#define CST816S_SYNC_COUNTER1               0xdb
+#define CST816S_DEBUG_SENSOR_ID             0xdc
+#define CST816S_DEBUG_CP                    0xdd
+#define CST816S_DEBUG_DIFFERENCE_COUNT0     0xde
+#define CST816S_DEBUG_BASELINE0             0xe0
+#define CST816S_DEBUG_RAW_COUNT0            0xe2
+#define CST816S_DEBUG_AVG_RAW_COUNT0        0xe4
+#define CST816S_SYNC_COUNTER2               0xe7
 
-/* Device commands for MBR3108_CTRL_CMD */
+/* Device commands for CST816S_CTRL_CMD */
 
-#define MBR3108_CMD_COMPLETED                               0
-#define MBR3108_CMD_CHECK_CONFIG_CRC                        2
-#define MBR3108_CMD_SET_CONFIG_CRC                          3
-#define MBR3108_CMD_ENTER_LOW_POWER_MODE                    7
-#define MBR3108_CMD_CLEAR_LATCHED                           8
-#define MBR3108_CMD_RESET_ADV_LOWPASS_FILTER_PROX_SENS_0    9
-#define MBR3108_CMD_RESET_ADV_LOWPASS_FILTER_PROX_SENS_1    10
-#define MBR3108_CMD_SOFTWARE_RESET                          255
+#define CST816S_CMD_COMPLETED                               0
+#define CST816S_CMD_CHECK_CONFIG_CRC                        2
+#define CST816S_CMD_SET_CONFIG_CRC                          3
+#define CST816S_CMD_ENTER_LOW_POWER_MODE                    7
+#define CST816S_CMD_CLEAR_LATCHED                           8
+#define CST816S_CMD_RESET_ADV_LOWPASS_FILTER_PROX_SENS_0    9
+#define CST816S_CMD_RESET_ADV_LOWPASS_FILTER_PROX_SENS_1    10
+#define CST816S_CMD_SOFTWARE_RESET                          255
 
-#define MBR3108_CMD_STATUS_SUCCESS                          0
-#define MBR3108_CMD_STATUS_ERROR                            1
-#define MBR3108_CMD_STATUS_MASK                             1
+#define CST816S_CMD_STATUS_SUCCESS                          0
+#define CST816S_CMD_STATUS_ERROR                            1
+#define CST816S_CMD_STATUS_MASK                             1
 
 /* Completion times for device commands */
 
-#define MBR3108_CMD_MSECS_CHECK_CONFIG_CRC                  280 /* >220 (typ.) */
-#define MBR3108_CMD_MSECS_SOFTWARE_RESET                    50
-#define MBR3108_CMD_MSECS_CLEAR_LATCHED                     50
+#define CST816S_CMD_MSECS_CHECK_CONFIG_CRC                  280 /* >220 (typ.) */
+#define CST816S_CMD_MSECS_SOFTWARE_RESET                    50
+#define CST816S_CMD_MSECS_CLEAR_LATCHED                     50
 
 /* Other macros */
 
-#define MBR3108_I2C_RETRIES                 10
-#define MBR3108_NUM_SENSORS                 8
-#define MBR3108_EXPECTED_FAMILY_ID          0x9a
-#define MBR3108_EXPECTED_DEVICE_ID          0x0a03
-#define MBR3108_EXPECTED_DEVICE_REV         1
-#define MBR3108_SYNC_RETRIES                10
+#define CST816S_I2C_RETRIES                 10
+#define CST816S_NUM_SENSORS                 8
+#define CST816S_EXPECTED_FAMILY_ID          0x9a
+#define CST816S_EXPECTED_DEVICE_ID          0x0a03
+#define CST816S_EXPECTED_DEVICE_REV         1
+#define CST816S_SYNC_RETRIES                10
 
-#ifndef CONFIG_MBR3108_I2C_FREQUENCY
-#  define CONFIG_MBR3108_I2C_FREQUENCY      400000
+#ifndef CONFIG_CST816S_I2C_FREQUENCY
+#  define CONFIG_CST816S_I2C_FREQUENCY      400000
 #endif
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
-struct mbr3108_dev_s
+struct cst816s_dev_s
 {
   /* I2C bus and address for device. */
 
@@ -185,42 +185,42 @@ struct mbr3108_dev_s
 
   /* Configuration for device. */
 
-  ////TODO: struct mbr3108_board_s *board;
-  ////TODO: const struct mbr3108_sensor_conf_s *sensor_conf;
+  ////TODO: struct cst816s_board_s *board;
+  ////TODO: const struct cst816s_sensor_conf_s *sensor_conf;
   sem_t devsem;
   uint8_t cref;
-  struct mbr3108_debug_conf_s debug_conf;
+  struct cst816s_debug_conf_s debug_conf;
   bool int_pending;
 
-  struct pollfd *fds[CONFIG_INPUT_CYPRESS_MBR3108_NPOLLWAITERS];
+  struct pollfd *fds[CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS];
 };
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static int mbr3108_open(FAR struct file *filep);
-static int mbr3108_close(FAR struct file *filep);
-static ssize_t mbr3108_read(FAR struct file *filep, FAR char *buffer,
+static int cst816s_open(FAR struct file *filep);
+static int cst816s_close(FAR struct file *filep);
+static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
                             size_t buflen);
-static ssize_t mbr3108_write(FAR struct file *filep, FAR const char *buffer,
+static ssize_t cst816s_write(FAR struct file *filep, FAR const char *buffer,
                              size_t buflen);
-static int mbr3108_poll(FAR struct file *filep, FAR struct pollfd *fds,
+static int cst816s_poll(FAR struct file *filep, FAR struct pollfd *fds,
                         bool setup);
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-static const struct file_operations g_mbr3108_fileops =
+static const struct file_operations g_cst816s_fileops =
 {
-  mbr3108_open,   /* open */
-  mbr3108_close,  /* close */
-  mbr3108_read,   /* read */
-  mbr3108_write,  /* write */
+  cst816s_open,   /* open */
+  cst816s_close,  /* close */
+  cst816s_read,   /* read */
+  cst816s_write,  /* write */
   NULL,           /* seek */
   NULL,           /* ioctl */
-  mbr3108_poll    /* poll */
+  cst816s_poll    /* poll */
 #ifndef CONFIG_DISABLE_PSEUDOFS_OPERATIONS
   , NULL          /* unlink */
 #endif
@@ -230,20 +230,20 @@ static const struct file_operations g_mbr3108_fileops =
  * Private Functions
  ****************************************************************************/
 
-static int mbr3108_i2c_write(FAR struct mbr3108_dev_s *dev, uint8_t reg,
+static int cst816s_i2c_write(FAR struct cst816s_dev_s *dev, uint8_t reg,
                              const uint8_t *buf, size_t buflen)
 {
   struct i2c_msg_s msgv[2] =
   {
     {
-      .frequency = CONFIG_MBR3108_I2C_FREQUENCY,
+      .frequency = CONFIG_CST816S_I2C_FREQUENCY,
       .addr      = dev->addr,
       .flags     = 0,
       .buffer    = &reg,
       .length    = 1
     },
     {
-      .frequency = CONFIG_MBR3108_I2C_FREQUENCY,
+      .frequency = CONFIG_CST816S_I2C_FREQUENCY,
       .addr      = dev->addr,
       .flags     = I2C_M_NOSTART,
       .buffer    = (void *)buf,
@@ -254,12 +254,12 @@ static int mbr3108_i2c_write(FAR struct mbr3108_dev_s *dev, uint8_t reg,
   int ret = -EIO;
   int retries;
 
-  /* MBR3108 will respond with NACK to address when in low-power mode. Host
-   * needs to retry address selection multiple times to get MBR3108 to
+  /* ??? will respond with NACK to address when in low-power mode. Host
+   * needs to retry address selection multiple times to get ??? to
    * wake-up.
    */
 
-  for (retries = 0; retries < MBR3108_I2C_RETRIES; retries++)
+  for (retries = 0; retries < CST816S_I2C_RETRIES; retries++)
     {
       ret = I2C_TRANSFER(dev->i2c, msgv, 2);
       if (ret == -ENXIO)
@@ -284,20 +284,20 @@ static int mbr3108_i2c_write(FAR struct mbr3108_dev_s *dev, uint8_t reg,
   return ret;
 }
 
-static int mbr3108_i2c_read(FAR struct mbr3108_dev_s *dev, uint8_t reg,
+static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
                             uint8_t *buf, size_t buflen)
 {
   struct i2c_msg_s msgv[2] =
   {
     {
-      .frequency = CONFIG_MBR3108_I2C_FREQUENCY,
+      .frequency = CONFIG_CST816S_I2C_FREQUENCY,
       .addr      = dev->addr,
       .flags     = 0,
       .buffer    = &reg,
       .length    = 1
     },
     {
-      .frequency = CONFIG_MBR3108_I2C_FREQUENCY,
+      .frequency = CONFIG_CST816S_I2C_FREQUENCY,
       .addr      = dev->addr,
       .flags     = I2C_M_READ,
       .buffer    = buf,
@@ -308,12 +308,12 @@ static int mbr3108_i2c_read(FAR struct mbr3108_dev_s *dev, uint8_t reg,
   int ret = -EIO;
   int retries;
 
-  /* MBR3108 will respond with NACK to address when in low-power mode. Host
-   * needs to retry address selection multiple times to get MBR3108 to
+  /* ??? will respond with NACK to address when in low-power mode. Host
+   * needs to retry address selection multiple times to get ??? to
    * wake-up.
    */
 
-  for (retries = 0; retries < MBR3108_I2C_RETRIES; retries++)
+  for (retries = 0; retries < CST816S_I2C_RETRIES; retries++)
     {
       ret = I2C_TRANSFER(dev->i2c, msgv, 2);
       if (ret == -ENXIO)
@@ -335,7 +335,7 @@ static int mbr3108_i2c_read(FAR struct mbr3108_dev_s *dev, uint8_t reg,
           /* Some other error. Try to reset I2C bus and keep trying. */
 
 #ifdef CONFIG_I2C_RESET
-          if (retries == MBR3108_I2C_RETRIES - 1)
+          if (retries == CST816S_I2C_RETRIES - 1)
             {
               break;
             }
@@ -355,11 +355,11 @@ static int mbr3108_i2c_read(FAR struct mbr3108_dev_s *dev, uint8_t reg,
   return ret;
 }
 
-static int mbr3108_check_cmd_status(FAR struct mbr3108_dev_s *dev)
+static int cst816s_check_cmd_status(FAR struct cst816s_dev_s *dev)
 {
-  const uint8_t start_reg = MBR3108_CTRL_CMD;
-  const uint8_t last_reg = MBR3108_CTRL_CMD_ERR;
-  uint8_t readbuf[MBR3108_CTRL_CMD_ERR - MBR3108_CTRL_CMD + 1];
+  const uint8_t start_reg = CST816S_CTRL_CMD;
+  const uint8_t last_reg = CST816S_CTRL_CMD_ERR;
+  uint8_t readbuf[CST816S_CTRL_CMD_ERR - CST816S_CTRL_CMD + 1];
   uint8_t cmd;
   uint8_t cmd_status;
   uint8_t cmd_err;
@@ -369,25 +369,25 @@ static int mbr3108_check_cmd_status(FAR struct mbr3108_dev_s *dev)
 
   /* Multi-byte read to get command status. */
 
-  ret = mbr3108_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
+  ret = cst816s_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
   if (ret < 0)
     {
       iinfo("cmd status get failed. ret=%d\n", ret);
       return ret;
     }
 
-  cmd        = readbuf[MBR3108_CTRL_CMD - MBR3108_CTRL_CMD];
-  cmd_status = readbuf[MBR3108_CTRL_CMD_STATUS - MBR3108_CTRL_CMD];
-  cmd_err    = readbuf[MBR3108_CTRL_CMD_ERR - MBR3108_CTRL_CMD];
+  cmd        = readbuf[CST816S_CTRL_CMD - CST816S_CTRL_CMD];
+  cmd_status = readbuf[CST816S_CTRL_CMD_STATUS - CST816S_CTRL_CMD];
+  cmd_err    = readbuf[CST816S_CTRL_CMD_ERR - CST816S_CTRL_CMD];
 
   iinfo("cmd: %d, status: %d, err: %d\n", cmd, cmd_status, cmd_err);
 
-  if (cmd != MBR3108_CMD_COMPLETED)
+  if (cmd != CST816S_CMD_COMPLETED)
     {
       return -EBUSY;
     }
 
-  if ((cmd_status & MBR3108_CMD_STATUS_MASK) == MBR3108_CMD_STATUS_SUCCESS)
+  if ((cmd_status & CST816S_CMD_STATUS_MASK) == CST816S_CMD_STATUS_SUCCESS)
     {
       /* Success. */
 
@@ -397,22 +397,22 @@ static int mbr3108_check_cmd_status(FAR struct mbr3108_dev_s *dev)
   return cmd_err;
 }
 
-static int mbr3108_save_check_crc(FAR struct mbr3108_dev_s *dev)
+static int cst816s_save_check_crc(FAR struct cst816s_dev_s *dev)
 {
-  uint8_t reg = MBR3108_CTRL_CMD;
-  uint8_t cmd = MBR3108_CMD_CHECK_CONFIG_CRC;
+  uint8_t reg = CST816S_CTRL_CMD;
+  uint8_t cmd = CST816S_CMD_CHECK_CONFIG_CRC;
   int ret;
 
-  ret = mbr3108_i2c_write(dev, reg, &cmd, 1);
+  ret = cst816s_i2c_write(dev, reg, &cmd, 1);
   if (ret < 0)
     {
-      iinfo("MBR3108_CTRL_CMD:CHECK_CONFIG_CRC write failed.\n");
+      iinfo("CST816S_CTRL_CMD:CHECK_CONFIG_CRC write failed.\n");
       return ret;
     }
 
-  nxsig_usleep(MBR3108_CMD_MSECS_CHECK_CONFIG_CRC * 1000);
+  nxsig_usleep(CST816S_CMD_MSECS_CHECK_CONFIG_CRC * 1000);
 
-  ret = mbr3108_check_cmd_status(dev);
+  ret = cst816s_check_cmd_status(dev);
   if (ret != 0)
     {
       return ret < 0 ? ret : -EIO;
@@ -421,22 +421,22 @@ static int mbr3108_save_check_crc(FAR struct mbr3108_dev_s *dev)
   return 0;
 }
 
-static int mbr3108_software_reset(FAR struct mbr3108_dev_s *dev)
+static int cst816s_software_reset(FAR struct cst816s_dev_s *dev)
 {
-  uint8_t reg = MBR3108_CTRL_CMD;
-  uint8_t cmd = MBR3108_CMD_SOFTWARE_RESET;
+  uint8_t reg = CST816S_CTRL_CMD;
+  uint8_t cmd = CST816S_CMD_SOFTWARE_RESET;
   int ret;
 
-  ret = mbr3108_i2c_write(dev, reg, &cmd, 1);
+  ret = cst816s_i2c_write(dev, reg, &cmd, 1);
   if (ret < 0)
     {
-      iinfo("MBR3108_CTRL_CMD:SOFTWARE_RESET write failed.\n");
+      iinfo("CST816S_CTRL_CMD:SOFTWARE_RESET write failed.\n");
       return ret;
     }
 
-  nxsig_usleep(MBR3108_CMD_MSECS_SOFTWARE_RESET * 1000);
+  nxsig_usleep(CST816S_CMD_MSECS_SOFTWARE_RESET * 1000);
 
-  ret = mbr3108_check_cmd_status(dev);
+  ret = cst816s_check_cmd_status(dev);
   if (ret != 0)
     {
       return ret < 0 ? ret : -EIO;
@@ -445,16 +445,16 @@ static int mbr3108_software_reset(FAR struct mbr3108_dev_s *dev)
   return 0;
 }
 
-static int mbr3108_enter_low_power_mode(FAR struct mbr3108_dev_s *dev)
+static int cst816s_enter_low_power_mode(FAR struct cst816s_dev_s *dev)
 {
-  uint8_t reg = MBR3108_CTRL_CMD;
-  uint8_t cmd = MBR3108_CMD_ENTER_LOW_POWER_MODE;
+  uint8_t reg = CST816S_CTRL_CMD;
+  uint8_t cmd = CST816S_CMD_ENTER_LOW_POWER_MODE;
   int ret;
 
-  ret = mbr3108_i2c_write(dev, reg, &cmd, 1);
+  ret = cst816s_i2c_write(dev, reg, &cmd, 1);
   if (ret < 0)
     {
-      iinfo("MBR3108_CTRL_CMD:SOFTWARE_RESET write failed.\n");
+      iinfo("CST816S_CTRL_CMD:SOFTWARE_RESET write failed.\n");
       return ret;
     }
 
@@ -465,23 +465,23 @@ static int mbr3108_enter_low_power_mode(FAR struct mbr3108_dev_s *dev)
   return 0;
 }
 
-static int mbr3108_clear_latched(FAR struct mbr3108_dev_s *dev)
+static int cst816s_clear_latched(FAR struct cst816s_dev_s *dev)
 {
-  uint8_t reg = MBR3108_CTRL_CMD;
-  uint8_t cmd = MBR3108_CMD_CLEAR_LATCHED;
+  uint8_t reg = CST816S_CTRL_CMD;
+  uint8_t cmd = CST816S_CMD_CLEAR_LATCHED;
   int ret;
 
-  ret = mbr3108_i2c_write(dev, reg, &cmd, 1);
+  ret = cst816s_i2c_write(dev, reg, &cmd, 1);
   if (ret < 0)
     {
-      iinfo("MBR3108_CTRL_CMD:  "
-                  "MBR3108_CMD_CLEAR_LATCHED write failed.\n");
+      iinfo("CST816S_CTRL_CMD:  "
+                  "CST816S_CMD_CLEAR_LATCHED write failed.\n");
       return ret;
     }
 
-  nxsig_usleep(MBR3108_CMD_MSECS_CLEAR_LATCHED * 1000);
+  nxsig_usleep(CST816S_CMD_MSECS_CLEAR_LATCHED * 1000);
 
-  ret = mbr3108_check_cmd_status(dev);
+  ret = cst816s_check_cmd_status(dev);
   if (ret != 0)
     {
       return ret < 0 ? ret : -EIO;
@@ -490,10 +490,10 @@ static int mbr3108_clear_latched(FAR struct mbr3108_dev_s *dev)
   return 0;
 }
 
-static int mbr3108_debug_setup(FAR struct mbr3108_dev_s *dev,
-                               FAR const struct mbr3108_debug_conf_s *conf)
+static int cst816s_debug_setup(FAR struct cst816s_dev_s *dev,
+                               FAR const struct cst816s_debug_conf_s *conf)
 {
-  uint8_t reg = MBR3108_SENSOR_ID;
+  uint8_t reg = CST816S_SENSOR_ID;
   int ret;
 
   /* Store new debug configuration. */
@@ -507,10 +507,10 @@ static int mbr3108_debug_setup(FAR struct mbr3108_dev_s *dev,
 
   /* Setup debug sensor id. */
 
-  ret = mbr3108_i2c_write(dev, reg, &conf->debug_sensor_id, 1);
+  ret = cst816s_i2c_write(dev, reg, &conf->debug_sensor_id, 1);
   if (ret < 0)
     {
-      iinfo("MBR3108_SENSOR_ID write failed.\n");
+      iinfo("CST816S_SENSOR_ID write failed.\n");
 
       dev->debug_conf.debug_mode = false;
     }
@@ -519,49 +519,49 @@ static int mbr3108_debug_setup(FAR struct mbr3108_dev_s *dev,
 }
 
 static int
-  mbr3108_device_configuration(FAR struct mbr3108_dev_s *dev,
-                               FAR const struct mbr3108_sensor_conf_s *conf)
+  cst816s_device_configuration(FAR struct cst816s_dev_s *dev,
+                               FAR const struct cst816s_sensor_conf_s *conf)
 {
-  const uint8_t start_reg = MBR3108_SENSOR_EN;
-  const uint8_t last_reg = MBR3108_CONFIG_CRC + 1;
+  const uint8_t start_reg = CST816S_SENSOR_EN;
+  const uint8_t last_reg = CST816S_CONFIG_CRC + 1;
   uint8_t value;
   int ret = 0;
 
   DEBUGASSERT(sizeof(conf->conf_data) == last_reg - start_reg + 1);
 
-  ret = mbr3108_i2c_read(dev, MBR3108_CTRL_CMD, &value, 1);
+  ret = cst816s_i2c_read(dev, CST816S_CTRL_CMD, &value, 1);
   if (ret < 0)
     {
-      iinfo("MBR3108_CTRL_CMD read failed.\n");
+      iinfo("CST816S_CTRL_CMD read failed.\n");
       return ret;
     }
 
-  if (value != MBR3108_CMD_COMPLETED)
+  if (value != CST816S_CMD_COMPLETED)
     {
       /* Device is busy processing previous command. */
 
       return -EBUSY;
     }
 
-  ret = mbr3108_i2c_write(dev, start_reg, conf->conf_data,
+  ret = cst816s_i2c_write(dev, start_reg, conf->conf_data,
                           last_reg - start_reg + 1);
   if (ret < 0)
     {
-      iinfo("MBR3108 configuration write failed.\n");
+      iinfo("configuration write failed.\n");
       return ret;
     }
 
-  ret = mbr3108_save_check_crc(dev);
+  ret = cst816s_save_check_crc(dev);
   if (ret < 0)
     {
-      iinfo("MBR3108 save check CRC failed. ret=%d\n", ret);
+      iinfo("save check CRC failed. ret=%d\n", ret);
       return ret;
     }
 
-  ret = mbr3108_software_reset(dev);
+  ret = cst816s_software_reset(dev);
   if (ret < 0)
     {
-      iinfo("MBR3108 software reset failed.\n");
+      iinfo("software reset failed.\n");
       return ret;
     }
 
@@ -570,23 +570,23 @@ static int
   return 0;
 }
 
-static int mbr3108_get_sensor_status(FAR struct mbr3108_dev_s *dev,
+static int cst816s_get_sensor_status(FAR struct cst816s_dev_s *dev,
                                      FAR void *buf)
 {
-  struct mbr3108_sensor_status_s status =
+  struct cst816s_sensor_status_s status =
   {
   };
 
-  const uint8_t start_reg = MBR3108_BUTTON_STAT;
-  const uint8_t last_reg = MBR3108_LATCHED_PROX_STAT;
-  uint8_t readbuf[MBR3108_LATCHED_PROX_STAT - MBR3108_BUTTON_STAT + 1];
+  const uint8_t start_reg = CST816S_BUTTON_STAT;
+  const uint8_t last_reg = CST816S_LATCHED_PROX_STAT;
+  uint8_t readbuf[CST816S_LATCHED_PROX_STAT - CST816S_BUTTON_STAT + 1];
   int ret;
 
   DEBUGASSERT(last_reg - start_reg + 1 == sizeof(readbuf));
 
   /* Attempt to sensor status registers. */
 
-  ret = mbr3108_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
+  ret = cst816s_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
   if (ret < 0)
     {
       iinfo("Sensor status read failed.\n");
@@ -595,16 +595,16 @@ static int mbr3108_get_sensor_status(FAR struct mbr3108_dev_s *dev,
     }
 
   status.button            =
-    (readbuf[MBR3108_BUTTON_STAT + 0 - start_reg]) |
-    (readbuf[MBR3108_BUTTON_STAT + 1 - start_reg] << 8);
+    (readbuf[CST816S_BUTTON_STAT + 0 - start_reg]) |
+    (readbuf[CST816S_BUTTON_STAT + 1 - start_reg] << 8);
   status.proximity         =
-    readbuf[MBR3108_PROX_STAT - start_reg];
+    readbuf[CST816S_PROX_STAT - start_reg];
 
   status.latched_button    =
-    (readbuf[MBR3108_LATCHED_BUTTON_STAT + 0 - start_reg]) |
-    (readbuf[MBR3108_LATCHED_BUTTON_STAT + 1 - start_reg] << 8);
+    (readbuf[CST816S_LATCHED_BUTTON_STAT + 0 - start_reg]) |
+    (readbuf[CST816S_LATCHED_BUTTON_STAT + 1 - start_reg] << 8);
   status.latched_proximity =
-    readbuf[MBR3108_LATCHED_PROX_STAT - start_reg];
+    readbuf[CST816S_LATCHED_PROX_STAT - start_reg];
 
   memcpy(buf, &status, sizeof(status));
 
@@ -615,16 +615,16 @@ static int mbr3108_get_sensor_status(FAR struct mbr3108_dev_s *dev,
   return 0;
 }
 
-static int mbr3108_get_sensor_debug_data(FAR struct mbr3108_dev_s *dev,
+static int cst816s_get_sensor_debug_data(FAR struct cst816s_dev_s *dev,
                                          FAR void *buf)
 {
-  struct mbr3108_sensor_debug_s data =
+  struct cst816s_sensor_debug_s data =
   {
   };
 
-  const uint8_t start_reg = MBR3108_SYNC_COUNTER1;
-  const uint8_t last_reg = MBR3108_SYNC_COUNTER2;
-  uint8_t readbuf[MBR3108_SYNC_COUNTER2 - MBR3108_SYNC_COUNTER1 + 1];
+  const uint8_t start_reg = CST816S_SYNC_COUNTER1;
+  const uint8_t last_reg = CST816S_SYNC_COUNTER2;
+  uint8_t readbuf[CST816S_SYNC_COUNTER2 - CST816S_SYNC_COUNTER1 + 1];
   uint8_t sync1;
   uint8_t sync2;
   int ret;
@@ -632,9 +632,9 @@ static int mbr3108_get_sensor_debug_data(FAR struct mbr3108_dev_s *dev,
 
   DEBUGASSERT(last_reg - start_reg + 1 == sizeof(readbuf));
 
-  for (retries = MBR3108_SYNC_RETRIES; retries > 0; retries--)
+  for (retries = CST816S_SYNC_RETRIES; retries > 0; retries--)
     {
-      ret = mbr3108_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
+      ret = cst816s_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
       if (ret < 0)
         {
           iinfo("Sensor debug data read failed.\n");
@@ -644,8 +644,8 @@ static int mbr3108_get_sensor_debug_data(FAR struct mbr3108_dev_s *dev,
 
       /* Sync counters need to match. */
 
-      sync1 = readbuf[MBR3108_SYNC_COUNTER1 - start_reg];
-      sync2 = readbuf[MBR3108_SYNC_COUNTER2 - start_reg];
+      sync1 = readbuf[CST816S_SYNC_COUNTER1 - start_reg];
+      sync2 = readbuf[CST816S_SYNC_COUNTER2 - start_reg];
 
       if (sync1 == sync2)
         {
@@ -659,18 +659,18 @@ static int mbr3108_get_sensor_debug_data(FAR struct mbr3108_dev_s *dev,
     }
 
   data.sensor_average_counts =
-      (readbuf[MBR3108_DEBUG_AVG_RAW_COUNT0 + 0 - start_reg]) |
-      (readbuf[MBR3108_DEBUG_AVG_RAW_COUNT0 + 1 - start_reg] << 8);
+      (readbuf[CST816S_DEBUG_AVG_RAW_COUNT0 + 0 - start_reg]) |
+      (readbuf[CST816S_DEBUG_AVG_RAW_COUNT0 + 1 - start_reg] << 8);
   data.sensor_baseline =
-      (readbuf[MBR3108_DEBUG_BASELINE0 + 0 - start_reg]) |
-      (readbuf[MBR3108_DEBUG_BASELINE0 + 1 - start_reg] << 8);
+      (readbuf[CST816S_DEBUG_BASELINE0 + 0 - start_reg]) |
+      (readbuf[CST816S_DEBUG_BASELINE0 + 1 - start_reg] << 8);
   data.sensor_diff_counts =
-      (readbuf[MBR3108_DEBUG_DIFFERENCE_COUNT0 + 0 - start_reg]) |
-      (readbuf[MBR3108_DEBUG_DIFFERENCE_COUNT0 + 1 - start_reg] << 8);
+      (readbuf[CST816S_DEBUG_DIFFERENCE_COUNT0 + 0 - start_reg]) |
+      (readbuf[CST816S_DEBUG_DIFFERENCE_COUNT0 + 1 - start_reg] << 8);
   data.sensor_raw_counts =
-      (readbuf[MBR3108_DEBUG_RAW_COUNT0 + 0 - start_reg]) |
-      (readbuf[MBR3108_DEBUG_RAW_COUNT0 + 1 - start_reg] << 8);
-  data.sensor_total_capacitance = readbuf[MBR3108_DEBUG_CP - start_reg];
+      (readbuf[CST816S_DEBUG_RAW_COUNT0 + 0 - start_reg]) |
+      (readbuf[CST816S_DEBUG_RAW_COUNT0 + 1 - start_reg] << 8);
+  data.sensor_total_capacitance = readbuf[CST816S_DEBUG_CP - start_reg];
 
   memcpy(buf, &data, sizeof(data));
 
@@ -683,11 +683,11 @@ static int mbr3108_get_sensor_debug_data(FAR struct mbr3108_dev_s *dev,
   return 0;
 }
 
-static int mbr3108_probe_device(FAR struct mbr3108_dev_s *dev)
+static int cst816s_probe_device(FAR struct cst816s_dev_s *dev)
 {
-  const uint8_t start_reg = MBR3108_FAMILY_ID;
-  const uint8_t last_reg = MBR3108_DEVICE_REV;
-  uint8_t readbuf[MBR3108_DEVICE_REV - MBR3108_FAMILY_ID + 1];
+  const uint8_t start_reg = CST816S_FAMILY_ID;
+  const uint8_t last_reg = CST816S_DEVICE_REV;
+  uint8_t readbuf[CST816S_DEVICE_REV - CST816S_FAMILY_ID + 1];
   uint8_t fam_id;
   uint16_t dev_id;
   uint8_t dev_rev;
@@ -699,7 +699,7 @@ static int mbr3108_probe_device(FAR struct mbr3108_dev_s *dev)
    * read.
    */
 
-  ret = mbr3108_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
+  ret = cst816s_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
   if (ret < 0)
     {
       /* Failed to read registers from device. */
@@ -711,24 +711,24 @@ static int mbr3108_probe_device(FAR struct mbr3108_dev_s *dev)
 
   /* Check result. */
 
-  fam_id = readbuf[MBR3108_FAMILY_ID - start_reg];
-  dev_id = (readbuf[MBR3108_DEVICE_ID + 0 - start_reg]) |
-           (readbuf[MBR3108_DEVICE_ID + 1 - start_reg] << 8);
-  dev_rev = readbuf[MBR3108_DEVICE_REV - start_reg];
+  fam_id = readbuf[CST816S_FAMILY_ID - start_reg];
+  dev_id = (readbuf[CST816S_DEVICE_ID + 0 - start_reg]) |
+           (readbuf[CST816S_DEVICE_ID + 1 - start_reg] << 8);
+  dev_rev = readbuf[CST816S_DEVICE_REV - start_reg];
 
   iinfo("family_id: 0x%02x, device_id: 0x%04x, device_rev: %d\n",
               fam_id, dev_id, dev_rev);
 
-  if (fam_id != MBR3108_EXPECTED_FAMILY_ID ||
-      dev_id != MBR3108_EXPECTED_DEVICE_ID ||
-      dev_rev != MBR3108_EXPECTED_DEVICE_REV)
+  if (fam_id != CST816S_EXPECTED_FAMILY_ID ||
+      dev_id != CST816S_EXPECTED_DEVICE_ID ||
+      dev_rev != CST816S_EXPECTED_DEVICE_REV)
     {
       iinfo("Probe failed, dev-id mismatch!\n");
       iinfo("  Expected: family_id: 0x%02x, device_id: "
                   "0x%04x, device_rev: %d\n",
-                  MBR3108_EXPECTED_FAMILY_ID,
-                  MBR3108_EXPECTED_DEVICE_ID,
-                  MBR3108_EXPECTED_DEVICE_REV);
+                  CST816S_EXPECTED_FAMILY_ID,
+                  CST816S_EXPECTED_DEVICE_ID,
+                  CST816S_EXPECTED_DEVICE_REV);
 
       return -ENXIO;
     }
@@ -736,11 +736,11 @@ static int mbr3108_probe_device(FAR struct mbr3108_dev_s *dev)
   return 0;
 }
 
-static ssize_t mbr3108_read(FAR struct file *filep, FAR char *buffer,
+static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
                             size_t buflen)
 {
   FAR struct inode *inode;
-  FAR struct mbr3108_dev_s *priv;
+  FAR struct cst816s_dev_s *priv;
   size_t outlen;
   irqstate_t flags;
   int ret;
@@ -761,18 +761,18 @@ static ssize_t mbr3108_read(FAR struct file *filep, FAR char *buffer,
 
   if (priv->debug_conf.debug_mode)
     {
-      outlen = sizeof(struct mbr3108_sensor_debug_s);
+      outlen = sizeof(struct cst816s_sensor_debug_s);
       if (buflen >= outlen)
         {
-          ret = mbr3108_get_sensor_debug_data(priv, buffer);
+          ret = cst816s_get_sensor_debug_data(priv, buffer);
         }
     }
   else
     {
-      outlen = sizeof(struct mbr3108_sensor_status_s);
+      outlen = sizeof(struct cst816s_sensor_status_s);
       if (buflen >= outlen)
         {
-          ret = mbr3108_get_sensor_status(priv, buffer);
+          ret = cst816s_get_sensor_status(priv, buffer);
         }
     }
 
@@ -784,12 +784,12 @@ static ssize_t mbr3108_read(FAR struct file *filep, FAR char *buffer,
   return ret < 0 ? ret : outlen;
 }
 
-static ssize_t mbr3108_write(FAR struct file *filep, FAR const char *buffer,
+static ssize_t cst816s_write(FAR struct file *filep, FAR const char *buffer,
                              size_t buflen)
 {
   FAR struct inode *inode;
-  FAR struct mbr3108_dev_s *priv;
-  enum mbr3108_cmd_e type;
+  FAR struct cst816s_dev_s *priv;
+  enum cst816s_cmd_e type;
   int ret;
 
   DEBUGASSERT(filep);
@@ -798,7 +798,7 @@ static ssize_t mbr3108_write(FAR struct file *filep, FAR const char *buffer,
   DEBUGASSERT(inode && inode->i_private);
   priv = inode->i_private;
 
-  if (buflen < sizeof(enum mbr3108_cmd_e))
+  if (buflen < sizeof(enum cst816s_cmd_e))
     {
       return -EINVAL;
     }
@@ -809,14 +809,14 @@ static ssize_t mbr3108_write(FAR struct file *filep, FAR const char *buffer,
       return ret;
     }
 
-  type = *(FAR const enum mbr3108_cmd_e *)buffer;
+  type = *(FAR const enum cst816s_cmd_e *)buffer;
 
   switch (type)
     {
-    case CYPRESS_MBR3108_CMD_SENSOR_CONF:
+    case CYPRESS_CST816S_CMD_SENSOR_CONF:
       {
-        FAR const struct mbr3108_cmd_sensor_conf_s *conf =
-            (FAR const struct mbr3108_cmd_sensor_conf_s *)buffer;
+        FAR const struct cst816s_cmd_sensor_conf_s *conf =
+            (FAR const struct cst816s_cmd_sensor_conf_s *)buffer;
 
         if (buflen != sizeof(*conf))
           {
@@ -824,14 +824,14 @@ static ssize_t mbr3108_write(FAR struct file *filep, FAR const char *buffer,
             goto out;
           }
 
-        ret = mbr3108_device_configuration(priv, &conf->conf);
+        ret = cst816s_device_configuration(priv, &conf->conf);
         break;
       }
 
-    case CYPRESS_MBR3108_CMD_DEBUG_CONF:
+    case CYPRESS_CST816S_CMD_DEBUG_CONF:
       {
-        FAR const struct mbr3108_cmd_debug_conf_s *conf =
-            (FAR const struct mbr3108_cmd_debug_conf_s *)buffer;
+        FAR const struct cst816s_cmd_debug_conf_s *conf =
+            (FAR const struct cst816s_cmd_debug_conf_s *)buffer;
 
         if (buflen != sizeof(*conf))
           {
@@ -839,11 +839,11 @@ static ssize_t mbr3108_write(FAR struct file *filep, FAR const char *buffer,
             goto out;
           }
 
-        ret = mbr3108_debug_setup(priv, &conf->conf);
+        ret = cst816s_debug_setup(priv, &conf->conf);
         break;
       }
 
-    case CYPRESS_MBR3108_CMD_CLEAR_LATCHED:
+    case CYPRESS_CST816S_CMD_CLEAR_LATCHED:
       {
         if (buflen != sizeof(type))
           {
@@ -851,7 +851,7 @@ static ssize_t mbr3108_write(FAR struct file *filep, FAR const char *buffer,
             goto out;
           }
 
-        ret = mbr3108_clear_latched(priv);
+        ret = cst816s_clear_latched(priv);
         break;
       }
 
@@ -866,10 +866,10 @@ out:
   return ret < 0 ? ret : buflen;
 }
 
-static int mbr3108_open(FAR struct file *filep)
+static int cst816s_open(FAR struct file *filep)
 {
   FAR struct inode *inode;
-  FAR struct mbr3108_dev_s *priv;
+  FAR struct cst816s_dev_s *priv;
   unsigned int use_count;
   int ret;
 
@@ -904,7 +904,7 @@ static int mbr3108_open(FAR struct file *filep)
 
       /* Check that device exists on I2C. */
 
-      ret = mbr3108_probe_device(priv);
+      ret = cst816s_probe_device(priv);
       if (ret < 0)
         {
           /* No such device. Power off the switch. */
@@ -918,7 +918,7 @@ static int mbr3108_open(FAR struct file *filep)
         {
           /* Do configuration. */
 
-          ret = mbr3108_device_configuration(priv, priv->sensor_conf);
+          ret = cst816s_device_configuration(priv, priv->sensor_conf);
           if (ret < 0)
             {
               /* Configuration failed. Power off the switch. */
@@ -944,10 +944,10 @@ out_sem:
   return ret;
 }
 
-static int mbr3108_close(FAR struct file *filep)
+static int cst816s_close(FAR struct file *filep)
 {
   FAR struct inode *inode;
-  FAR struct mbr3108_dev_s *priv;
+  FAR struct cst816s_dev_s *priv;
   int use_count;
   int ret;
 
@@ -972,7 +972,7 @@ static int mbr3108_close(FAR struct file *filep)
 
       /* Set chip in low-power mode. */
 
-      mbr3108_enter_low_power_mode(priv);
+      cst816s_enter_low_power_mode(priv);
 
       /* Last user, do power off. */
 
@@ -993,13 +993,13 @@ static int mbr3108_close(FAR struct file *filep)
   return 0;
 }
 
-static void mbr3108_poll_notify(FAR struct mbr3108_dev_s *priv)
+static void cst816s_poll_notify(FAR struct cst816s_dev_s *priv)
 {
   int i;
 
   DEBUGASSERT(priv != NULL);
 
-  for (i = 0; i < CONFIG_INPUT_CYPRESS_MBR3108_NPOLLWAITERS; i++)
+  for (i = 0; i < CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS; i++)
     {
       struct pollfd *fds = priv->fds[i];
       if (fds)
@@ -1012,10 +1012,10 @@ static void mbr3108_poll_notify(FAR struct mbr3108_dev_s *priv)
     }
 }
 
-static int mbr3108_poll(FAR struct file *filep, FAR struct pollfd *fds,
+static int cst816s_poll(FAR struct file *filep, FAR struct pollfd *fds,
                         bool setup)
 {
-  FAR struct mbr3108_dev_s *priv;
+  FAR struct cst816s_dev_s *priv;
   FAR struct inode *inode;
   bool pending;
   int ret = 0;
@@ -1025,7 +1025,7 @@ static int mbr3108_poll(FAR struct file *filep, FAR struct pollfd *fds,
   inode = filep->f_inode;
 
   DEBUGASSERT(inode && inode->i_private);
-  priv = (FAR struct mbr3108_dev_s *)inode->i_private;
+  priv = (FAR struct cst816s_dev_s *)inode->i_private;
 
   ret = nxsem_wait(&priv->devsem);
   if (ret < 0)
@@ -1047,7 +1047,7 @@ static int mbr3108_poll(FAR struct file *filep, FAR struct pollfd *fds,
        * the poll structure reference.
        */
 
-      for (i = 0; i < CONFIG_INPUT_CYPRESS_MBR3108_NPOLLWAITERS; i++)
+      for (i = 0; i < CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS; i++)
         {
           /* Find an available slot */
 
@@ -1061,7 +1061,7 @@ static int mbr3108_poll(FAR struct file *filep, FAR struct pollfd *fds,
             }
         }
 
-      if (i >= CONFIG_INPUT_CYPRESS_MBR3108_NPOLLWAITERS)
+      if (i >= CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS)
         {
           fds->priv = NULL;
           ret = -EBUSY;
@@ -1071,7 +1071,7 @@ static int mbr3108_poll(FAR struct file *filep, FAR struct pollfd *fds,
           pending = priv->int_pending;
           if (pending)
             {
-              mbr3108_poll_notify(priv);
+              cst816s_poll_notify(priv);
             }
         }
     }
@@ -1093,9 +1093,9 @@ out:
   return ret;
 }
 
-static int mbr3108_isr_handler(int irq, FAR void *context, FAR void *arg)
+static int cst816s_isr_handler(int irq, FAR void *context, FAR void *arg)
 {
-  FAR struct mbr3108_dev_s *priv = (FAR struct mbr3108_dev_s *)arg;
+  FAR struct cst816s_dev_s *priv = (FAR struct cst816s_dev_s *)arg;
   irqstate_t flags;
 
   DEBUGASSERT(priv != NULL);
@@ -1104,7 +1104,7 @@ static int mbr3108_isr_handler(int irq, FAR void *context, FAR void *arg)
   priv->int_pending = true;
   leave_critical_section(flags);
 
-  mbr3108_poll_notify(priv);
+  cst816s_poll_notify(priv);
   return 0;
 }
 
@@ -1116,15 +1116,15 @@ int cst816s_register(FAR const char *devpath,
                              FAR struct i2c_master_s *i2c_dev,
                              uint8_t i2c_devaddr)
 {
-  struct mbr3108_dev_s *priv;
+  struct cst816s_dev_s *priv;
   int ret = 0;
 
   /* Allocate device private structure. */
 
-  priv = kmm_zalloc(sizeof(struct mbr3108_dev_s));
+  priv = kmm_zalloc(sizeof(struct cst816s_dev_s));
   if (!priv)
     {
-      iinfo("Memory cannot be allocated for mbr3108 sensor\n");
+      iinfo("Memory cannot be allocated for driver\n");
       return -ENOMEM;
     }
 
@@ -1135,11 +1135,11 @@ int cst816s_register(FAR const char *devpath,
 
   nxsem_init(&priv->devsem, 0, 1);
 
-  ret = register_driver(devpath, &g_mbr3108_fileops, 0666, priv);
+  ret = register_driver(devpath, &g_cst816s_fileops, 0666, priv);
   if (ret < 0)
     {
       kmm_free(priv);
-      iinfo("Error occurred during the driver registering\n");
+      iinfo("Error occurred during the driver registration\n");
       return ret;
     }
 
@@ -1147,7 +1147,7 @@ int cst816s_register(FAR const char *devpath,
 
   /* Prepare interrupt line and handler. */
 
-  ////TODO: priv->board->irq_attach(priv->board, mbr3108_isr_handler, priv);
+  ////TODO: priv->board->irq_attach(priv->board, cst816s_isr_handler, priv);
   ////TODO: priv->board->irq_enable(priv->board, false);
 
   return 0;
