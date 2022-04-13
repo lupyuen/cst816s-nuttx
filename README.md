@@ -101,4 +101,8 @@ Here's how we created the CST816S Driver for NuttX on PineDio Stack BL604...
 
 NuttX Driver for Cypress MBR3108 Touch Controller looks structurally similar to PineDio Stack's CST816S ... So we copy-n-paste into our CST816S Driver
 
-[(Source)](https://github.com/lupyuen/incubator-nuttx/blob/master/drivers/input/cypress_mbr3108.c)
+-   [NuttX Driver for Cypress MBR3108](https://github.com/lupyuen/incubator-nuttx/blob/master/drivers/input/cypress_mbr3108.c)
+
+# GPIO Interrupt
+
+TODO
