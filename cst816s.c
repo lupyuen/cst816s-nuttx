@@ -39,6 +39,9 @@
 
 #include <nuttx/input/cst816s.h>
 
+#include "../arch/risc-v/src/bl602/bl602_gpio.h"  ////  TODO
+#include "../boards/risc-v/bl602/bl602evb/include/board.h"  ////  TODO
+
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
@@ -209,8 +212,8 @@ static ssize_t cst816s_write(FAR struct file *filep, FAR const char *buffer,
                              size_t buflen);
 static int cst816s_poll(FAR struct file *filep, FAR struct pollfd *fds,
                         bool setup);
-static int bl602_irq_attach(FAR struct cst816s_dev_s *priv, FAR isr_handler *handler, FAR void *arg);
-static int bl602_irq_enable(FAR struct cst816s_dev_s *priv, bool enable);
+static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR void *arg);
+static int bl602_irq_enable(bool enable);
 
 /****************************************************************************
  * Private Data
@@ -569,7 +572,7 @@ static int
       return ret;
     }
 
-  bl602_irq_enable(dev, true);
+  bl602_irq_enable(true);
 
   return 0;
 }
@@ -972,7 +975,7 @@ static int cst816s_close(FAR struct file *filep)
     {
       /* Disable interrupt */
 
-      bl602_irq_enable(priv, false);
+      bl602_irq_enable(false);
 
       /* Set chip in low-power mode. */
 
@@ -1097,7 +1100,7 @@ out:
   return ret;
 }
 
-static int cst816s_isr_handler(int irq, FAR void *context, FAR void *arg)
+static int cst816s_isr_handler(int _irq, FAR void *_context, FAR void *arg)
 {
   FAR struct cst816s_dev_s *priv = (FAR struct cst816s_dev_s *)arg;
   irqstate_t flags;
@@ -1149,7 +1152,7 @@ int cst816s_register(FAR const char *devpath,
 
   /* Prepare interrupt line and handler. */
 
-  ret = bl602_irq_attach(priv, cst816s_isr_handler, priv);
+  ret = bl602_irq_attach(BOARD_TOUCH_INT, cst816s_isr_handler, priv);
   if (ret < 0)
     {
       kmm_free(priv);
@@ -1157,7 +1160,7 @@ int cst816s_register(FAR const char *devpath,
       return ret;
     }
 
-  ret = bl602_irq_enable(priv, false);
+  ret = bl602_irq_enable(false);
   if (ret < 0)
     {
       kmm_free(priv);
@@ -1184,59 +1187,69 @@ static void bl602_expander_set_intmod(uint8_t gpio_pin, uint8_t int_ctlmod, uint
 static int bl602_expander_get_intstatus(uint8_t gpio_pin);
 static void bl602_expander_intclear(uint8_t gpio_pin, uint8_t int_clear);
 
+static gpio_pinset_t bl602_expander_pinset = 0;
+static FAR isr_handler *bl602_expander_callback = NULL;
+static FAR void *bl602_expander_arg = NULL;
+
+//  struct ioexpander_dev_s;
+//  typedef CODE int (*ioe_callback_t)(FAR struct ioexpander_dev_s *dev, ioe_pinset_t pinset, FAR void *arg);
+
 //  Attach Interrupt Handler to GPIO Interrupt for Touch Controller
 //  Based on https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L477-L505
-static int bl602_irq_attach(FAR struct cst816s_dev_s *priv, FAR isr_handler *handler, FAR void *arg)
+static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR void *arg)
 {
   int ret = 0;
+  uint8_t gpio_pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
+  FAR struct bl602_gpint_dev_s *dev = NULL;  //  TODO
 
-  DEBUGASSERT(priv != NULL);
-  DEBUGASSERT(handler != NULL);
+  DEBUGASSERT(callback != NULL);
 
-#ifdef TODO
-      /* Configure the pin that will be used as interrupt input */
+  /* Configure the pin that will be used as interrupt input */
 
-      bl602_expander_set_intmod(
-        g_gpiointinputs[i], 1, GLB_GPIO_INT_TRIG_NEG_PULSE);
-      bl602_configgpio(g_gpiointinputs[i]);
+  bl602_expander_set_intmod(pinset, 1, GLB_GPIO_INT_TRIG_NEG_PULSE);
+  ret = bl602_configgpio(pinset);
+  if (ret < 0)
+    {
+      gpioerr("Failed to configure GPIO pin %d\n", gpio_pin);
+      return ret;
+    }
 
   /* Make sure the interrupt is disabled */
 
-  bl602xgpint->callback = callback;
+  bl602_expander_pinset = pinset;
+  bl602_expander_callback = callback;
+  bl602_expander_arg = arg;
   bl602_expander_intmask(gpio_pin, 1);
 
   irq_attach(BL602_IRQ_GPIO_INT0, bl602_expander_interrupt, dev);
   bl602_expander_intmask(gpio_pin, 0);
 
   gpioinfo("Attach %p\n", callback);
-#endif  //  TODO
 
   return 0;
 }
 
 //  Enable GPIO Interrupt for Touch Controller
 //  Based on https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L507-L535
-static int bl602_irq_enable(FAR struct cst816s_dev_s *priv, bool enable)
+static int bl602_irq_enable(bool enable)
 {
-  int ret = 0;
-
-  DEBUGASSERT(priv != NULL);
-
-#ifdef TODO
   if (enable)
     {
-      if (bl602xgpint->callback != NULL)
+      if (bl602_expander_callback != NULL)
         {
-          gpioinfo("Enabling the interrupt\n");
+          gpioinfo("Enable interrupt\n");
           up_enable_irq(BL602_IRQ_GPIO_INT0);
+        }
+      else
+        {
+          gpiowarn("No callback attached\n");
         }
     }
   else
     {
-      gpioinfo("Disable the interrupt\n");
+      gpioinfo("Disable interrupt\n");
       up_disable_irq(BL602_IRQ_GPIO_INT0);
     }
-#endif  //  TODO
 
   return 0;
 }
@@ -1252,17 +1265,16 @@ static int bl602_irq_enable(FAR struct cst816s_dev_s *priv, bool enable)
 
 static int bl602_expander_interrupt(int irq, void *context, void *arg)
 {
-  FAR struct bl602_gpint_dev_s *bl602xgpint =
-    (FAR struct bl602_gpint_dev_s *)arg;
+  FAR struct bl602_gpint_dev_s *dev = (FAR struct bl602_gpint_dev_s *)arg;
 
   uint32_t time_out = 0;
   uint8_t gpio_pin;
 
-#ifdef TODO
-  DEBUGASSERT(bl602xgpint != NULL && bl602xgpint->callback != NULL);
-  gpioinfo("Interrupt! callback=%p\n", bl602xgpint->callback);
+  ////TODO: DEBUGASSERT(dev != NULL);
+  DEBUGASSERT(bl602_expander_callback != NULL);
+  gpioinfo("Interrupt! callback=%p, arg=%p\n", bl602_expander_callback, arg);
 
-  gpio_pin = ???; //// (g_gpiointinputs[bl602xgpint->bl602gpio.id] & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
+  gpio_pin = (bl602_expander_pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
 
   if (1 == bl602_expander_get_intstatus(gpio_pin))
     {
@@ -1286,9 +1298,10 @@ static int bl602_expander_interrupt(int irq, void *context, void *arg)
       bl602_expander_intclear(gpio_pin, 0);
     }
 
-  bl602xgpint->callback(&bl602xgpint->bl602gpio.gpio,
-                        gpio_pin);
-#endif  //  TODO
+  gpioinfo("Call callback=%p, arg=%p\n", bl602_expander_callback, arg);
+  #warning Call callback
+  ////TODO: bl602_expander_callback(irq, context, bl602_expander_arg);
+  ////TODO Previously: bl602_expander_callback(&bl602xgpint->bl602gpio.gpio, gpio_pin);
 
   return OK;
 }
