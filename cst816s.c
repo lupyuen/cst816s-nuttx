@@ -43,7 +43,7 @@
  * Pre-Processor Definitions
  ****************************************************************************/
 
-#define CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS 1  ////  TODO
+#define CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS 10  ////  TODO
 
 /* Register macros */
 
@@ -176,6 +176,8 @@
  * Private Types
  ****************************************************************************/
 
+typedef int isr_handler(int irq, FAR void *context, FAR void *arg);
+
 struct cst816s_dev_s
 {
   /* I2C bus and address for device. */
@@ -207,6 +209,8 @@ static ssize_t cst816s_write(FAR struct file *filep, FAR const char *buffer,
                              size_t buflen);
 static int cst816s_poll(FAR struct file *filep, FAR struct pollfd *fds,
                         bool setup);
+static int bl602_irq_attach(FAR struct cst816s_dev_s *priv, FAR isr_handler *handler, FAR void *arg);
+static int bl602_irq_enable(FAR struct cst816s_dev_s *priv, bool enable);
 
 /****************************************************************************
  * Private Data
@@ -565,7 +569,7 @@ static int
       return ret;
     }
 
-  ////TODO: dev->board->irq_enable(dev->board, true);
+  bl602_irq_enable(dev, true);
 
   return 0;
 }
@@ -968,7 +972,7 @@ static int cst816s_close(FAR struct file *filep)
     {
       /* Disable interrupt */
 
-      ////TODO: priv->board->irq_enable(priv->board, false);
+      bl602_irq_enable(priv, false);
 
       /* Set chip in low-power mode. */
 
@@ -1113,8 +1117,8 @@ static int cst816s_isr_handler(int irq, FAR void *context, FAR void *arg)
  ****************************************************************************/
 
 int cst816s_register(FAR const char *devpath,
-                             FAR struct i2c_master_s *i2c_dev,
-                             uint8_t i2c_devaddr)
+                     FAR struct i2c_master_s *i2c_dev,
+                     uint8_t i2c_devaddr)
 {
   struct cst816s_dev_s *priv;
   int ret = 0;
@@ -1147,8 +1151,27 @@ int cst816s_register(FAR const char *devpath,
 
   /* Prepare interrupt line and handler. */
 
-  ////TODO: priv->board->irq_attach(priv->board, cst816s_isr_handler, priv);
-  ////TODO: priv->board->irq_enable(priv->board, false);
+  bl602_irq_attach(priv, cst816s_isr_handler, priv);
+  bl602_irq_enable(priv, false);
 
+  return 0;
+}
+
+//  TODO: Move this to board
+static int bl602_irq_attach(FAR struct cst816s_dev_s *priv, FAR isr_handler *handler, FAR void *arg)
+{
+  int ret = 0;
+
+  DEBUGASSERT(priv != NULL);
+  DEBUGASSERT(handler != NULL);
+  return 0;
+}
+
+//  TODO: Move this to board
+static int bl602_irq_enable(FAR struct cst816s_dev_s *priv, bool enable)
+{
+  int ret = 0;
+
+  DEBUGASSERT(priv != NULL);
   return 0;
 }
