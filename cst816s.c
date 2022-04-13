@@ -1161,8 +1161,6 @@ int cst816s_register(FAR const char *devpath,
     }
 
   ret = bl602_irq_enable(false);
-  #warning Enable interrupt
-  ret = bl602_irq_enable(true); ////TODO
   if (ret < 0)
     {
       kmm_free(priv);
@@ -1171,6 +1169,13 @@ int cst816s_register(FAR const char *devpath,
     }
 
   iinfo("Driver registered\n");
+
+//  Uncomment this to test interrupts (tap the screen)
+#define TEST_CST816S_INTERRUPT  ////TODO
+#ifdef TEST_CST816S_INTERRUPT
+#warning Testing CST816S interrupt
+  bl602_irq_enable(true);
+#endif /* TEST_CST816S_INTERRUPT */
 
   return 0;
 }
@@ -1208,6 +1213,7 @@ static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR
 
   /* Configure the pin that will be used as interrupt input */
 
+  //  TODO: Check GLB_GPIO_INT_TRIG_NEG_PULSE
   bl602_expander_set_intmod(pinset, 1, GLB_GPIO_INT_TRIG_NEG_PULSE);
   ret = bl602_configgpio(pinset);
   if (ret < 0)

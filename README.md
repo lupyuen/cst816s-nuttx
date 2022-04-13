@@ -143,7 +143,7 @@ bl602_expander_interrupt: Interrupt! callback=0x2305e9e8, arg=0
 bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
 ```
 
-LVGL Test App fails to open `/dev/input0`, but that's OK
+LVGL Test App fails to open `/dev/input0`, but that's OK because we haven't implemented the I2C part.
 
 ```text
 nsh> ls /dev
