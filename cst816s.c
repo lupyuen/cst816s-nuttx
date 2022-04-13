@@ -1143,7 +1143,7 @@ int cst816s_register(FAR const char *devpath,
   if (ret < 0)
     {
       kmm_free(priv);
-      iinfo("Error occurred during the driver registration\n");
+      iinfo("Error occurred during driver registration\n");
       return ret;
     }
 
@@ -1157,7 +1157,7 @@ int cst816s_register(FAR const char *devpath,
   return 0;
 }
 
-//  TODO: Move this to board
+//  Attach Interrupt Handler to GPIO Interrupt for Touch Controller. TODO: Move this to board
 static int bl602_irq_attach(FAR struct cst816s_dev_s *priv, FAR isr_handler *handler, FAR void *arg)
 {
   int ret = 0;
@@ -1167,7 +1167,7 @@ static int bl602_irq_attach(FAR struct cst816s_dev_s *priv, FAR isr_handler *han
   return 0;
 }
 
-//  TODO: Move this to board
+//  Enable GPIO Interrupt for Touch Controller. TODO: Move this to board
 static int bl602_irq_enable(FAR struct cst816s_dev_s *priv, bool enable)
 {
   int ret = 0;
