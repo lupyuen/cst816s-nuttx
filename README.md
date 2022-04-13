@@ -186,7 +186,9 @@ bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
 
 # Test Touch Data
 
-TODO
+Touch Data looks erratic, most are invalid, with some valid points.
+
+LVGL Test App seems to be polling the Touch Controller very frequently.
 
 ```text
 gpio_pin_register: Registering /dev/gpio0
