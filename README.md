@@ -62,5 +62,33 @@ nuttx/boards/risc-v/bl602/bl602evb/src/bl602_bringup.c
 nuttx/boards/xtensa/esp32/esp32-devkitc/src/esp32_bringup.c
 ```
 
-TODO" And call `???` to load our driver:
+And call `cst816s_register` to load our driver:
 
+https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_bringup.c#L826-L843
+
+```c
+#ifdef CONFIG_INPUT_CST816S
+#include <nuttx/input/cst816s.h>
+#endif /* CONFIG_INPUT_CST816S */
+...
+#ifdef CONFIG_INPUT_CST816S
+int bl602_bringup(void)
+{
+  ...
+  /* Init I2C bus for CST816S */
+
+  struct i2c_master_s *cst816s_i2c_bus = bl602_i2cbus_initialize(0);
+  if (!cst816s_i2c_bus)
+    {
+      _err("ERROR: Failed to get I2C%d interface\n", 0);
+    }
+
+  /* Register the CST816S driver */
+
+  ret = cst816s_register("/dev/input0", cst816s_i2c_bus, 0x15);
+  if (ret < 0)
+    {
+      _err("ERROR: Failed to register CST816S\n");
+    }
+#endif /* CONFIG_INPUT_CST816S */
+```
