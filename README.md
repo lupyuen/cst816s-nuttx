@@ -114,3 +114,31 @@ PineDio Stack's Touch Panel is a peculiar I2C Device ... It won't respond to I2C
 # GPIO Interrupt
 
 TODO
+
+# Test GPIO Interrupt
+
+GOP Interrupt works when we tap the screen!
+
+```text
+gpio_pin_register: Registering /dev/gpio0
+gpio_pin_register: Registering /dev/gpio1
+gpint_enable: Disable the interrupt
+gpio_pin_register: Registering /dev/gpio2
+bl602_gpio_set_intmod: ****gpio_pin=115, int_ctlmod=1, int_trgmod=0
+spi_test_driver_register: devpath=/dev/spitest0, spidev=0
+bl602_expander_set_intmod: ****gpio_pin=105, int_ctlmod=1, int_trgmod=0
+bl602_irq_attach: Attach 0x2305e9e8
+bl602_irq_enable: Disable interrupt
+bl602_irq_enable: Enable interrupt
+cst816s_register: Driver registered
+
+NuttShell (NSH) NuttX-10.2.0-RC0
+nsh> bl602_expander_interrupt: Interrupt! callback=0x2305e9e8, arg=0
+bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
+bl602_expander_interrupt: Interrupt! callback=0x2305e9e8, arg=0
+bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
+bl602_expander_interrupt: Interrupt! callback=0x2305e9e8, arg=0
+bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
+bl602_expander_interrupt: Interrupt! callback=0x2305e9e8, arg=0
+bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
+```

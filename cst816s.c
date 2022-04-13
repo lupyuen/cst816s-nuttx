@@ -1161,6 +1161,8 @@ int cst816s_register(FAR const char *devpath,
     }
 
   ret = bl602_irq_enable(false);
+  #warning Enable interrupt
+  ret = bl602_irq_enable(true); ////TODO
   if (ret < 0)
     {
       kmm_free(priv);
