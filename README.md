@@ -105,6 +105,12 @@ NuttX Driver for Cypress MBR3108 Touch Controller looks structurally similar to 
 
 -   [NuttX Driver for Cypress MBR3108](https://github.com/lupyuen/incubator-nuttx/blob/master/drivers/input/cypress_mbr3108.c)
 
+# I2C Scan
+
+PineDio Stack's Touch Panel is a peculiar I2C Device ... It won't respond to I2C Scan unless we tap the screen and wake it up!
+
+-   ["Building a Rust Driver for PineTime’s Touch Controller"](https://lupyuen.github.io/articles/building-a-rust-driver-for-pinetimes-touch-controller)
+
 # GPIO Interrupt
 
 TODO
