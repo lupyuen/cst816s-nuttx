@@ -630,7 +630,8 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   bool valid = true;
   if (x >= 240 || y >= 240) {
     valid = false;
-    iwarn("Invalid touch data: x=%d, y=%d\n", x, y);
+    return -EINVAL;  /* Must not return invalid coordinates, because lvgldemo can't handle. */
+    //  iwarn("Invalid touch data: x=%d, y=%d\n", x, y);
   }
 
   /* Set the touch data fields. */
