@@ -142,3 +142,41 @@ bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
 bl602_expander_interrupt: Interrupt! callback=0x2305e9e8, arg=0
 bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
 ```
+
+LVGL Test App fails to open `/dev/input0`, but that's OK
+
+```text
+nsh> ls /dev
+/dev:
+ console
+ gpio0
+ gpio1
+ gpio2
+ i2c0
+ input0
+ lcd0
+ null
+ spi0
+ spitest0
+ timer0
+ urandom
+ zero
+
+nsh> lvgltest
+tp_init: Opening /dev/input0
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c transfer success
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c transfer success
+cst816s_probe_device: family_id: 0x34, device_id: 0x00aa, device_rev: 35
+cst816s_probe_device: Probe failed, dev-id mismatch!
+cst816s_probe_device:   Expected: family_id: 0x9a, device_id: 0x0a03, device_rev: 1
+tp_init: open /dev/input0 failed: 6
+Terminating!
+bl602_expander_interrupt: Interrupt! callback=0x2305e9e8, arg=0
+bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
+bl602_expander_interrupt: Interrupt! callback=0x2305e9e8, arg=0
+bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
+bl602_expander_interrupt: Interrupt! callback=0x2305e9e8, arg=0
+bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
+```
