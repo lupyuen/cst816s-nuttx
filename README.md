@@ -120,7 +120,7 @@ TODO
 
 # Test GPIO Interrupt
 
-GOP Interrupt works when we tap the screen!
+GPIO Interrupt works when we tap the screen!
 
 ```text
 gpio_pin_register: Registering /dev/gpio0
