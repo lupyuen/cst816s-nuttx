@@ -143,7 +143,7 @@ int cst816s_register(FAR const char *devpath,
     }
 ```
 
-[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L1065-L1125)
+[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L593-L661)
 
 `bl602_irq_attach` is defined below...
 
@@ -185,7 +185,7 @@ static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR
 }
 ```
 
-[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L1148-L1182)
+[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L686-L727)
 
 Note that we're calling `bl602_expander` to handle interrupts. There doesn't seem to be a way to do this with the current BL602 GPIO Driver (`bl602evb/bl602_gpio.c`).
 
@@ -209,7 +209,7 @@ int cst816s_register(FAR const char *devpath,
 #endif /* TEST_CST816S_INTERRUPT */
 ```
 
-[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L1065-L1125)
+[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L593-L661)
 
 There's bug with BL602 GPIO Interrupts that we have fixed for our driver...
 
@@ -375,7 +375,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 }
 ```
 
-[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L599-L680)
+[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L213-L302)
 
 # Test Touch Data
 
