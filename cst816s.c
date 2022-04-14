@@ -54,128 +54,9 @@
 #define CST816S_REG_TOUCHDATA 0x00
 #define CST816S_REG_CHIPID    0xA7
 
-/* Unused */
-
-#define CST816S_SENSOR_EN                   0x0
-#define CST816S_FSS_EN                      0x02
-#define CST816S_TOGGLE_EN                   0x04
-#define CST816S_LED_ON_EN                   0x06
-#define CST816S_SENSITIVITY0                0x08
-#define CST816S_SENSITIVITY1                0x09
-#define CST816S_BASE_THRESHOLD0             0x0c
-#define CST816S_BASE_THRESHOLD1             0x0d
-#define CST816S_FINGER_THRESHOLD2           0x0e
-#define CST816S_FINGER_THRESHOLD3           0x0f
-#define CST816S_FINGER_THRESHOLD4           0x10
-#define CST816S_FINGER_THRESHOLD5           0x11
-#define CST816S_FINGER_THRESHOLD6           0x12
-#define CST816S_FINGER_THRESHOLD7           0x13
-#define CST816S_SENSOR_DEBOUNCE             0x1c
-#define CST816S_BUTTON_HYS                  0x1d
-#define CST816S_BUTTON_LBR                  0x1f
-#define CST816S_BUTTON_NNT                  0x20
-#define CST816S_BUTTON_NT                   0x21
-#define CST816S_PROX_EN                     0x26
-#define CST816S_PROX_CFG                    0x27
-#define CST816S_PROX_CFG2                   0x28
-#define CST816S_PROX_TOUCH_TH0              0x2a
-#define CST816S_PROX_TOUCH_TH1              0x2c
-#define CST816S_PROX_RESOLUTION0            0x2e
-#define CST816S_PROX_RESOLUTION1            0x2f
-#define CST816S_PROX_HYS                    0x30
-#define CST816S_PROX_LBR                    0x32
-#define CST816S_PROX_NNT                    0x33
-#define CST816S_PROX_NT                     0x34
-#define CST816S_PROX_POSITIVE_TH0           0x35
-#define CST816S_PROX_POSITIVE_TH1           0x36
-#define CST816S_PROX_NEGATIVE_TH0           0x39
-#define CST816S_PROX_NEGATIVE_TH1           0x3a
-#define CST816S_LED_ON_TIME                 0x3d
-#define CST816S_BUZZER_CFG                  0x3e
-#define CST816S_BUZZER_ON_TIME              0x3f
-#define CST816S_GPO_CFG                     0x40
-#define CST816S_PWM_DUTYCYCLE_CFG0          0x41
-#define CST816S_PWM_DUTYCYCLE_CFG1          0x42
-#define CST816S_PWM_DUTYCYCLE_CFG2          0x43
-#define CST816S_PWM_DUTYCYCLE_CFG3          0x44
-#define CST816S_SPO_CFG                     0x4c
-#define CST816S_DEVICE_CFG0                 0x4d
-#define CST816S_DEVICE_CFG1                 0x4e
-#define CST816S_DEVICE_CFG2                 0x4f
-#define CST816S_DEVICE_CFG3                 0x50
-#define CST816S_I2C_ADDR                    0x51
-#define CST816S_REFRESH_CTRL                0x52
-#define CST816S_STATE_TIMEOUT               0x55
-#define CST816S_CONFIG_CRC                  0x7e
-#define CST816S_GPO_OUTPUT_STATE            0x80
-#define CST816S_SENSOR_ID                   0x82
-#define CST816S_CTRL_CMD                    0x86
-#define CST816S_CTRL_CMD_STATUS             0x88
-#define CST816S_CTRL_CMD_ERR                0x89
-#define CST816S_SYSTEM_STATUS               0x8a
-#define CST816S_PREV_CTRL_CMD_CODE          0x8c
-#define CST816S_FAMILY_ID                   0x8f
-#define CST816S_DEVICE_ID                   0x90
-#define CST816S_DEVICE_REV                  0x92
-#define CST816S_CALC_CRC                    0x94
-#define CST816S_TOTAL_WORKING_SNS           0x97
-#define CST816S_SNS_CP_HIGH                 0x98
-#define CST816S_SNS_VDD_SHORT               0x9a
-#define CST816S_SNS_GND_SHORT               0x9c
-#define CST816S_SNS_SNS_SHORT               0x9e
-#define CST816S_CMOD_SHIELD_TEST            0xa0
-#define CST816S_BUTTON_STAT                 0xaa
-#define CST816S_LATCHED_BUTTON_STAT         0xac
-#define CST816S_PROX_STAT                   0xae
-#define CST816S_LATCHED_PROX_STAT           0xaf
-#define CST816S_SYNC_COUNTER0               0xb9
-#define CST816S_DIFFERENCE_COUNT_SENSOR0    0xba
-#define CST816S_DIFFERENCE_COUNT_SENSOR1    0xbc
-#define CST816S_DIFFERENCE_COUNT_SENSOR2    0xbe
-#define CST816S_DIFFERENCE_COUNT_SENSOR3    0xc0
-#define CST816S_DIFFERENCE_COUNT_SENSOR4    0xc2
-#define CST816S_DIFFERENCE_COUNT_SENSOR5    0xc4
-#define CST816S_DIFFERENCE_COUNT_SENSOR6    0xc6
-#define CST816S_DIFFERENCE_COUNT_SENSOR7    0xc8
-#define CST816S_GPO_DATA                    0xda
-#define CST816S_SYNC_COUNTER1               0xdb
-#define CST816S_DEBUG_SENSOR_ID             0xdc
-#define CST816S_DEBUG_CP                    0xdd
-#define CST816S_DEBUG_DIFFERENCE_COUNT0     0xde
-#define CST816S_DEBUG_BASELINE0             0xe0
-#define CST816S_DEBUG_RAW_COUNT0            0xe2
-#define CST816S_DEBUG_AVG_RAW_COUNT0        0xe4
-#define CST816S_SYNC_COUNTER2               0xe7
-
-/* Unused: Device commands for CST816S_CTRL_CMD */
-
-#define CST816S_CMD_COMPLETED                               0
-#define CST816S_CMD_CHECK_CONFIG_CRC                        2
-#define CST816S_CMD_SET_CONFIG_CRC                          3
-#define CST816S_CMD_ENTER_LOW_POWER_MODE                    7
-#define CST816S_CMD_CLEAR_LATCHED                           8
-#define CST816S_CMD_RESET_ADV_LOWPASS_FILTER_PROX_SENS_0    9
-#define CST816S_CMD_RESET_ADV_LOWPASS_FILTER_PROX_SENS_1    10
-#define CST816S_CMD_SOFTWARE_RESET                          255
-
-#define CST816S_CMD_STATUS_SUCCESS                          0
-#define CST816S_CMD_STATUS_ERROR                            1
-#define CST816S_CMD_STATUS_MASK                             1
-
-/* Unused: Completion times for device commands */
-
-#define CST816S_CMD_MSECS_CHECK_CONFIG_CRC                  280 /* >220 (typ.) */
-#define CST816S_CMD_MSECS_SOFTWARE_RESET                    50
-#define CST816S_CMD_MSECS_CLEAR_LATCHED                     50
-
-/* Unused: Other macros */
+/* I2C Retries and Frequency */
 
 #define CST816S_I2C_RETRIES                 10
-#define CST816S_NUM_SENSORS                 8
-#define CST816S_EXPECTED_FAMILY_ID          0x9a
-#define CST816S_EXPECTED_DEVICE_ID          0x0a03
-#define CST816S_EXPECTED_DEVICE_REV         1
-#define CST816S_SYNC_RETRIES                10
 
 #ifndef CONFIG_CST816S_I2C_FREQUENCY
 #  define CONFIG_CST816S_I2C_FREQUENCY      400000
@@ -196,8 +77,6 @@ struct cst816s_dev_s
 
   /* Configuration for device. */
 
-  ////TODO: struct cst816s_board_s *board;
-  ////TODO: const struct cst816s_sensor_conf_s *sensor_conf;
   sem_t devsem;
   uint8_t cref;
   struct cst816s_debug_conf_s debug_conf;
@@ -214,8 +93,6 @@ static int cst816s_open(FAR struct file *filep);
 static int cst816s_close(FAR struct file *filep);
 static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
                             size_t buflen);
-static ssize_t cst816s_write(FAR struct file *filep, FAR const char *buffer,
-                             size_t buflen);
 static int cst816s_poll(FAR struct file *filep, FAR struct pollfd *fds,
                         bool setup);
 static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR void *arg);
@@ -230,7 +107,7 @@ static const struct file_operations g_cst816s_fileops =
   cst816s_open,   /* open */
   cst816s_close,  /* close */
   cst816s_read,   /* read */
-  cst816s_write,  /* write */
+  NULL,           /* write */
   NULL,           /* seek */
   NULL,           /* ioctl */
   cst816s_poll    /* poll */
@@ -242,61 +119,6 @@ static const struct file_operations g_cst816s_fileops =
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-static int cst816s_i2c_write(FAR struct cst816s_dev_s *dev, uint8_t reg,
-                             const uint8_t *buf, size_t buflen)
-{
-  iinfo("\n"); ////
-  struct i2c_msg_s msgv[2] =
-  {
-    {
-      .frequency = CONFIG_CST816S_I2C_FREQUENCY,
-      .addr      = dev->addr,
-      .flags     = 0,
-      .buffer    = &reg,
-      .length    = 1
-    },
-    {
-      .frequency = CONFIG_CST816S_I2C_FREQUENCY,
-      .addr      = dev->addr,
-      .flags     = I2C_M_NOSTART,
-      .buffer    = (void *)buf,
-      .length    = buflen
-    }
-  };
-
-  int ret = -EIO;
-  int retries;
-
-  /* ??? will respond with NACK to address when in low-power mode. Host
-   * needs to retry address selection multiple times to get ??? to
-   * wake-up.
-   */
-
-  for (retries = 0; retries < CST816S_I2C_RETRIES; retries++)
-    {
-      ret = I2C_TRANSFER(dev->i2c, msgv, 2);
-      if (ret == -ENXIO)
-        {
-          /* -ENXIO is returned when getting NACK from response.
-           * Keep trying.
-           */
-
-          continue;
-        }
-
-      if (ret >= 0)
-        {
-          /* Success! */
-
-          return 0;
-        }
-    }
-
-  /* Failed to read sensor. */
-
-  return ret;
-}
 
 static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
                             uint8_t *buf, size_t buflen)
@@ -327,8 +149,8 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
   int ret = -EIO;
   int retries;
 
-  /* ??? will respond with NACK to address when in low-power mode. Host
-   * needs to retry address selection multiple times to get ??? to
+  /* CST816S will respond with NACK to address when in low-power mode. Host
+   * needs to retry address selection multiple times to get CST816S to
    * wake-up.
    */
 
@@ -372,228 +194,6 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
   /* Failed to read sensor. */
 
   return ret;
-}
-
-static int cst816s_check_cmd_status(FAR struct cst816s_dev_s *dev)
-{
-  iinfo("\n"); ////
-  const uint8_t start_reg = CST816S_CTRL_CMD;
-  const uint8_t last_reg = CST816S_CTRL_CMD_ERR;
-  uint8_t readbuf[CST816S_CTRL_CMD_ERR - CST816S_CTRL_CMD + 1];
-  uint8_t cmd;
-  uint8_t cmd_status;
-  uint8_t cmd_err;
-  int ret;
-
-  DEBUGASSERT(last_reg - start_reg + 1 == sizeof(readbuf));
-
-  /* Multi-byte read to get command status. */
-
-  ret = cst816s_i2c_read(dev, start_reg, readbuf, sizeof(readbuf));
-  if (ret < 0)
-    {
-      iinfo("cmd status get failed. ret=%d\n", ret);
-      return ret;
-    }
-
-  cmd        = readbuf[CST816S_CTRL_CMD - CST816S_CTRL_CMD];
-  cmd_status = readbuf[CST816S_CTRL_CMD_STATUS - CST816S_CTRL_CMD];
-  cmd_err    = readbuf[CST816S_CTRL_CMD_ERR - CST816S_CTRL_CMD];
-
-  iinfo("cmd: %d, status: %d, err: %d\n", cmd, cmd_status, cmd_err);
-
-  if (cmd != CST816S_CMD_COMPLETED)
-    {
-      return -EBUSY;
-    }
-
-  if ((cmd_status & CST816S_CMD_STATUS_MASK) == CST816S_CMD_STATUS_SUCCESS)
-    {
-      /* Success. */
-
-      return 0;
-    }
-
-  return cmd_err;
-}
-
-static int cst816s_save_check_crc(FAR struct cst816s_dev_s *dev)
-{
-  iinfo("\n"); ////
-  uint8_t reg = CST816S_CTRL_CMD;
-  uint8_t cmd = CST816S_CMD_CHECK_CONFIG_CRC;
-  int ret;
-
-  ret = cst816s_i2c_write(dev, reg, &cmd, 1);
-  if (ret < 0)
-    {
-      iinfo("CST816S_CTRL_CMD:CHECK_CONFIG_CRC write failed.\n");
-      return ret;
-    }
-
-  nxsig_usleep(CST816S_CMD_MSECS_CHECK_CONFIG_CRC * 1000);
-
-  ret = cst816s_check_cmd_status(dev);
-  if (ret != 0)
-    {
-      return ret < 0 ? ret : -EIO;
-    }
-
-  return 0;
-}
-
-static int cst816s_software_reset(FAR struct cst816s_dev_s *dev)
-{
-  iinfo("\n"); ////
-  uint8_t reg = CST816S_CTRL_CMD;
-  uint8_t cmd = CST816S_CMD_SOFTWARE_RESET;
-  int ret;
-
-  ret = cst816s_i2c_write(dev, reg, &cmd, 1);
-  if (ret < 0)
-    {
-      iinfo("CST816S_CTRL_CMD:SOFTWARE_RESET write failed.\n");
-      return ret;
-    }
-
-  nxsig_usleep(CST816S_CMD_MSECS_SOFTWARE_RESET * 1000);
-
-  ret = cst816s_check_cmd_status(dev);
-  if (ret != 0)
-    {
-      return ret < 0 ? ret : -EIO;
-    }
-
-  return 0;
-}
-
-static int cst816s_enter_low_power_mode(FAR struct cst816s_dev_s *dev)
-{
-  iinfo("\n"); ////
-  uint8_t reg = CST816S_CTRL_CMD;
-  uint8_t cmd = CST816S_CMD_ENTER_LOW_POWER_MODE;
-  int ret;
-
-  ret = cst816s_i2c_write(dev, reg, &cmd, 1);
-  if (ret < 0)
-    {
-      iinfo("CST816S_CTRL_CMD:SOFTWARE_RESET write failed.\n");
-      return ret;
-    }
-
-  /* Device is now in low-power mode and not scanning. Further communication
-   * will cause wake-up and make chip resume scanning operations.
-   */
-
-  return 0;
-}
-
-static int cst816s_clear_latched(FAR struct cst816s_dev_s *dev)
-{
-  iinfo("\n"); ////
-  uint8_t reg = CST816S_CTRL_CMD;
-  uint8_t cmd = CST816S_CMD_CLEAR_LATCHED;
-  int ret;
-
-  ret = cst816s_i2c_write(dev, reg, &cmd, 1);
-  if (ret < 0)
-    {
-      iinfo("CST816S_CTRL_CMD:  "
-                  "CST816S_CMD_CLEAR_LATCHED write failed.\n");
-      return ret;
-    }
-
-  nxsig_usleep(CST816S_CMD_MSECS_CLEAR_LATCHED * 1000);
-
-  ret = cst816s_check_cmd_status(dev);
-  if (ret != 0)
-    {
-      return ret < 0 ? ret : -EIO;
-    }
-
-  return 0;
-}
-
-static int cst816s_debug_setup(FAR struct cst816s_dev_s *dev,
-                               FAR const struct cst816s_debug_conf_s *conf)
-{
-  iinfo("\n"); ////
-  uint8_t reg = CST816S_SENSOR_ID;
-  int ret;
-
-  /* Store new debug configuration. */
-
-  dev->debug_conf = *conf;
-
-  if (!conf->debug_mode)
-    {
-      return 0;
-    }
-
-  /* Setup debug sensor id. */
-
-  ret = cst816s_i2c_write(dev, reg, &conf->debug_sensor_id, 1);
-  if (ret < 0)
-    {
-      iinfo("CST816S_SENSOR_ID write failed.\n");
-
-      dev->debug_conf.debug_mode = false;
-    }
-
-  return ret;
-}
-
-static int
-  cst816s_device_configuration(FAR struct cst816s_dev_s *dev,
-                               FAR const struct cst816s_sensor_conf_s *conf)
-{
-  iinfo("\n"); ////
-  const uint8_t start_reg = CST816S_SENSOR_EN;
-  const uint8_t last_reg = CST816S_CONFIG_CRC + 1;
-  uint8_t value;
-  int ret = 0;
-
-  DEBUGASSERT(sizeof(conf->conf_data) == last_reg - start_reg + 1);
-
-  ret = cst816s_i2c_read(dev, CST816S_CTRL_CMD, &value, 1);
-  if (ret < 0)
-    {
-      iinfo("CST816S_CTRL_CMD read failed.\n");
-      return ret;
-    }
-
-  if (value != CST816S_CMD_COMPLETED)
-    {
-      /* Device is busy processing previous command. */
-
-      return -EBUSY;
-    }
-
-  ret = cst816s_i2c_write(dev, start_reg, conf->conf_data,
-                          last_reg - start_reg + 1);
-  if (ret < 0)
-    {
-      iinfo("configuration write failed.\n");
-      return ret;
-    }
-
-  ret = cst816s_save_check_crc(dev);
-  if (ret < 0)
-    {
-      iinfo("save check CRC failed. ret=%d\n", ret);
-      return ret;
-    }
-
-  ret = cst816s_software_reset(dev);
-  if (ret < 0)
-    {
-      iinfo("software reset failed.\n");
-      return ret;
-    }
-
-  bl602_irq_enable(true);
-
-  return 0;
 }
 
 static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
@@ -727,89 +327,6 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
   return ret < 0 ? ret : outlen;
 }
 
-static ssize_t cst816s_write(FAR struct file *filep, FAR const char *buffer,
-                             size_t buflen)
-{
-  iinfo("\n"); ////
-  FAR struct inode *inode;
-  FAR struct cst816s_dev_s *priv;
-  enum cst816s_cmd_e type;
-  int ret;
-
-  DEBUGASSERT(filep);
-  inode = filep->f_inode;
-
-  DEBUGASSERT(inode && inode->i_private);
-  priv = inode->i_private;
-
-  if (buflen < sizeof(enum cst816s_cmd_e))
-    {
-      return -EINVAL;
-    }
-
-  ret = nxsem_wait(&priv->devsem);
-  if (ret < 0)
-    {
-      return ret;
-    }
-
-  type = *(FAR const enum cst816s_cmd_e *)buffer;
-
-  switch (type)
-    {
-    case CYPRESS_CST816S_CMD_SENSOR_CONF:
-      {
-        FAR const struct cst816s_cmd_sensor_conf_s *conf =
-            (FAR const struct cst816s_cmd_sensor_conf_s *)buffer;
-
-        if (buflen != sizeof(*conf))
-          {
-            ret = -EINVAL;
-            goto out;
-          }
-
-        ret = cst816s_device_configuration(priv, &conf->conf);
-        break;
-      }
-
-    case CYPRESS_CST816S_CMD_DEBUG_CONF:
-      {
-        FAR const struct cst816s_cmd_debug_conf_s *conf =
-            (FAR const struct cst816s_cmd_debug_conf_s *)buffer;
-
-        if (buflen != sizeof(*conf))
-          {
-            ret = -EINVAL;
-            goto out;
-          }
-
-        ret = cst816s_debug_setup(priv, &conf->conf);
-        break;
-      }
-
-    case CYPRESS_CST816S_CMD_CLEAR_LATCHED:
-      {
-        if (buflen != sizeof(type))
-          {
-            ret = -EINVAL;
-            goto out;
-          }
-
-        ret = cst816s_clear_latched(priv);
-        break;
-      }
-
-    default:
-      ret = -EINVAL;
-      break;
-    }
-
-out:
-  nxsem_post(&priv->devsem);
-
-  return ret < 0 ? ret : buflen;
-}
-
 static int cst816s_open(FAR struct file *filep)
 {
   iinfo("\n"); ////
@@ -831,62 +348,11 @@ static int cst816s_open(FAR struct file *filep)
     }
 
   use_count = priv->cref + 1;
-  if (use_count == 1)
-    {
-#ifdef TODO  ////  Power on
-      /* First user, do power on. */
+  DEBUGASSERT(use_count < UINT8_MAX && use_count > priv->cref);
 
-      ret = priv->board->set_power(priv->board, true);
-      if (ret < 0)
-        {
-          goto out_sem;
-        }
-#endif  ////  TODO
+  priv->cref = use_count;
+  ret = 0;
 
-      /* Let chip to power up before probing */
-
-      nxsig_usleep(100 * 1000);
-
-#ifdef NOTUSED  //  Assume that device exists. It might not respond unless we tap the screen.
-      /* Check that device exists on I2C. */
-
-      ret = cst816s_probe_device(priv);
-      if (ret < 0)
-        {
-          /* No such device. Power off the switch. */
-
-          ////TODO: priv->board->set_power(priv->board, false);
-          goto out_sem;
-        }
-#endif  //  NOTUSED
-
-#ifdef TODO  ////  Configure device
-      if (priv->sensor_conf)
-        {
-          /* Do configuration. */
-
-          ret = cst816s_device_configuration(priv, priv->sensor_conf);
-          if (ret < 0)
-            {
-              /* Configuration failed. Power off the switch. */
-
-              priv->board->set_power(priv->board, false);
-              goto out_sem;
-            }
-        }
-#endif  ////  TODO
-
-      priv->cref = use_count;
-    }
-  else
-    {
-      DEBUGASSERT(use_count < UINT8_MAX && use_count > priv->cref);
-
-      priv->cref = use_count;
-      ret = 0;
-    }
-
-////  out_sem:
   nxsem_post(&priv->devsem);
   return ret;
 }
@@ -917,14 +383,6 @@ static int cst816s_close(FAR struct file *filep)
       /* Disable interrupt */
 
       bl602_irq_enable(false);
-
-      /* Set chip in low-power mode. */
-
-      cst816s_enter_low_power_mode(priv);
-
-      /* Last user, do power off. */
-
-      ////TODO: priv->board->set_power(priv->board, false);
 
       priv->debug_conf.debug_mode = false;
       priv->cref = use_count;
@@ -1286,7 +744,7 @@ static void bl602_expander_intmask(uint8_t gpio_pin, int intmask)
   else
     {
       gpioerr("Invalid pin %d\n", gpio_pin);
-      DEBUGASSERT(0);
+      DEBUGPANIC();
     }
 }
 
@@ -1335,7 +793,7 @@ static void bl602_expander_set_intmod(uint8_t gpio_pin,
   else
     {
       gpioerr("Invalid pin %d\n", gpio_pin);
-      DEBUGASSERT(0);
+      DEBUGPANIC();
     }
 }
 
@@ -1361,7 +819,7 @@ static int bl602_expander_get_intstatus(uint8_t gpio_pin)
   else
     {
       gpioerr("Invalid pin %d\n", gpio_pin);
-      DEBUGASSERT(0);
+      DEBUGPANIC();
     }
 
   return (tmp_val & (1 << gpio_pin)) ? 1 : 0;
@@ -1389,6 +847,6 @@ static void bl602_expander_intclear(uint8_t gpio_pin, uint8_t int_clear)
   else
     {
       gpioerr("Invalid pin %d\n", gpio_pin);
-      DEBUGASSERT(0);
+      DEBUGPANIC();
     }
 }
