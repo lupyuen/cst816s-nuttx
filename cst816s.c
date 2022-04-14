@@ -347,7 +347,7 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
 
   outlen = sizeof(struct touch_sample_s);
   static int throttle = 0;
-  if (/* (priv->int_pending || throttle++ % 10 == 0) && */ buflen >= outlen)
+  if ((priv->int_pending /* || throttle++ % 10 == 0 */ ) && buflen >= outlen)
     {
       ret = cst816s_get_touch_data(priv, buffer);
     }
