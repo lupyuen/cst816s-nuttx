@@ -1269,10 +1269,9 @@ static int bl602_expander_interrupt(int irq, void *context, void *arg)
 static void bl602_expander_intmask(int pin, int intmask)
 {
   #warning gpio_pin should be uint8_t  ////  TODO
-  #warning Halt for invalid gpio_pin //// TODO
   uint32_t tmp_val;
 
-  if (pin < 28)
+  if (pin < GPIO_PIN28)
     {
       tmp_val = getreg32(BL602_GPIO_INT_MASK1);
       if (intmask == 1)
@@ -1285,6 +1284,11 @@ static void bl602_expander_intmask(int pin, int intmask)
         }
 
       putreg32(tmp_val, BL602_GPIO_INT_MASK1);
+    }
+  else
+    {
+      gpioerr("Invalid pin %d\n", pin);
+      DEBUGASSERT(0);
     }
 }
 
@@ -1300,7 +1304,6 @@ static void bl602_expander_intmask(int pin, int intmask)
 static void bl602_expander_set_intmod(uint8_t gpio_pin,
               uint8_t int_ctlmod, uint8_t int_trgmod)
 {
-  #warning Halt for invalid gpio_pin //// TODO
   gpioinfo("****gpio_pin=%d, int_ctlmod=%d, int_trgmod=%d\n", gpio_pin, int_ctlmod, int_trgmod); //// TODO
   uint32_t tmp_val;
 
@@ -1322,14 +1325,19 @@ static void bl602_expander_set_intmod(uint8_t gpio_pin,
                   0x7 << (3 * tmp_val),
                   ((int_ctlmod << 2) | int_trgmod) << (3 * tmp_val));
     }
-  else
+  else if (gpio_pin < GPIO_PIN28)
     {
-      /* GPIO20 ~ GPIO29 */
+      /* GPIO20 ~ GPIO27 */
 
       tmp_val = gpio_pin - GPIO_PIN20;
       modifyreg32(BL602_GPIO_INT_MODE_SET3,
                   0x7 << (3 * tmp_val),
                   ((int_ctlmod << 2) | int_trgmod) << (3 * tmp_val));
+    }
+  else
+    {
+      gpioerr("Invalid pin %d\n", gpio_pin);
+      DEBUGASSERT(0);
     }
 }
 
@@ -1344,14 +1352,18 @@ static void bl602_expander_set_intmod(uint8_t gpio_pin,
 
 static int bl602_expander_get_intstatus(uint8_t gpio_pin)
 {
-  #warning Halt for invalid gpio_pin //// TODO
   uint32_t tmp_val = 0;
 
-  if (gpio_pin < 28)
+  if (gpio_pin < GPIO_PIN28)
     {
       /* GPIO0 ~ GPIO27 */
 
       tmp_val = getreg32(BL602_GPIO_INT_STAT1);
+    }
+  else
+    {
+      gpioerr("Invalid pin %d\n", gpio_pin);
+      DEBUGASSERT(0);
     }
 
   return (tmp_val & (1 << gpio_pin)) ? 1 : 0;
@@ -1368,13 +1380,17 @@ static int bl602_expander_get_intstatus(uint8_t gpio_pin)
 
 static void bl602_expander_intclear(uint8_t gpio_pin, uint8_t int_clear)
 {
-  #warning Halt for invalid gpio_pin //// TODO
-  if (gpio_pin < 28)
+  if (gpio_pin < GPIO_PIN28)
     {
       /* GPIO0 ~ GPIO27 */
 
       modifyreg32(BL602_GPIO_INT_CLR1,
                   int_clear ? 0 : (1 << gpio_pin),
                   int_clear ? (1 << gpio_pin) : 0);
+    }
+  else
+    {
+      gpioerr("Invalid pin %d\n", gpio_pin);
+      DEBUGASSERT(0);
     }
 }
