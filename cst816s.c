@@ -122,6 +122,12 @@ static const struct file_operations g_cst816s_fileops =
 #endif
 };
 
+/* Last event and last valid touch coordinates */
+
+static uint8_t  last_event = 0xff;
+static uint16_t last_x     = 0xffff;
+static uint16_t last_y     = 0xffff;
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -212,8 +218,6 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
   return ret;
 }
 
-static uint8_t last_event = 0xff; ////
-
 /****************************************************************************
  * Name: cst816s_get_touch_data
  *
@@ -250,14 +254,21 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   uint16_t x  = (xhigh  << 8) | xlow;
   uint16_t y  = (yhigh  << 8) | ylow;
 
-  /* Validate the touch coordinates. */
+  /* If touch coordinates are invalid, return the last valid coordinates. */
 
   bool valid = true;
   if (x >= 240 || y >= 240) {
-    valid = false;
     iwarn("Invalid touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
-    ////TODO return -EINVAL;  /* Must not return invalid coordinates, because lvgldemo can't handle. */
+    valid = false;
+    x = last_x;
+    y = last_y;
   }
+
+  /* Remember the last valid touch data. */
+
+  last_event = event;
+  last_x     = x;
+  last_y     = y;
 
   /* Set the touch data fields. */
 
@@ -298,7 +309,6 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
       iinfo("CONTACT: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
       return -EINVAL;
     }
-  last_event = event;
 
   /* Return the touch data. */
 
@@ -348,11 +358,10 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
 
   ret = -EINVAL;
 
-  /* Read the touch data over I2C, only if screen has been touched */
+  /* Read the touch data, only if screen has been touched or if we're waiting for touch up */
 
   outlen = sizeof(struct touch_sample_s);
-  static int throttle = 0;
-  if ((priv->int_pending || last_event == 0 /* || throttle++ % 10 == 0 */ ) && buflen >= outlen)
+  if ((priv->int_pending || last_event == 0) && buflen >= outlen)
     {
       ret = cst816s_get_touch_data(priv, buffer);
     }
