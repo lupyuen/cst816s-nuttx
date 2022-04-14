@@ -118,6 +118,10 @@ PineDio Stack's Touch Panel is a peculiar I2C Device ... It won't respond to I2C
 
 TODO
 
+There's bug with BL602 GPIO Interrupts that we have fixed for our driver...
+
+https://github.com/apache/incubator-nuttx/issues/5810#issuecomment-1098633538
+
 # Test GPIO Interrupt
 
 GPIO Interrupt works when we tap the screen!
