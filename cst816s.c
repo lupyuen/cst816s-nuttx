@@ -247,7 +247,6 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   uint8_t yhigh = readbuf[5] & 0x0f;
   uint8_t ylow  = readbuf[6];
   uint8_t event = readbuf[3] >> 6;  /* 0 = Touch Down, 1 = Touch Up, 2 = Contact */
-  last_event = event;
   uint16_t x  = (xhigh  << 8) | xlow;
   uint16_t y  = (yhigh  << 8) | ylow;
 
@@ -299,6 +298,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
       iinfo("CONTACT: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
       return -EINVAL;
     }
+  last_event = event;
 
   /* Return the touch data. */
 
