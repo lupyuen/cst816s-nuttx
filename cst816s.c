@@ -66,7 +66,11 @@
  * Private Types
  ****************************************************************************/
 
+/* Interrupt Handler */
+
 typedef int isr_handler(int irq, FAR void *context, FAR void *arg);
+
+/* CST816S Device */
 
 struct cst816s_dev_s
 {
@@ -102,6 +106,8 @@ static int bl602_irq_enable(bool enable);
  * Private Data
  ****************************************************************************/
 
+/* File Operations exposed to NuttX Apps */
+
 static const struct file_operations g_cst816s_fileops =
 {
   cst816s_open,   /* open */
@@ -118,6 +124,14 @@ static const struct file_operations g_cst816s_fileops =
 
 /****************************************************************************
  * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: cst816s_i2c_read
+ *
+ * Description:
+ *   Read from I2C device.
+ *
  ****************************************************************************/
 
 static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
@@ -195,6 +209,14 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
 
   return ret;
 }
+
+/****************************************************************************
+ * Name: cst816s_get_touch_data
+ *
+ * Description:
+ *   Read Touch Data over I2C.
+ *
+ ****************************************************************************/
 
 static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 {
@@ -279,6 +301,14 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   return sizeof(data);
 }
 
+/****************************************************************************
+ * Name: cst816s_read
+ *
+ * Description:
+ *   Read Touch Data from the device.
+ *
+ ****************************************************************************/
+
 static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
                             size_t buflen)
 {
@@ -327,6 +357,14 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
   return ret < 0 ? ret : outlen;
 }
 
+/****************************************************************************
+ * Name: cst816s_open
+ *
+ * Description:
+ *   Open the device.
+ *
+ ****************************************************************************/
+
 static int cst816s_open(FAR struct file *filep)
 {
   iinfo("\n"); ////
@@ -356,6 +394,14 @@ static int cst816s_open(FAR struct file *filep)
   nxsem_post(&priv->devsem);
   return ret;
 }
+
+/****************************************************************************
+ * Name: cst816s_close
+ *
+ * Description:
+ *   Close the device.
+ *
+ ****************************************************************************/
 
 static int cst816s_close(FAR struct file *filep)
 {
@@ -399,6 +445,14 @@ static int cst816s_close(FAR struct file *filep)
   return 0;
 }
 
+/****************************************************************************
+ * Name: cst816s_poll_notify
+ *
+ * Description:
+ *   Notify all waiting pollers.
+ *
+ ****************************************************************************/
+
 static void cst816s_poll_notify(FAR struct cst816s_dev_s *priv)
 {
   iinfo("\n"); ////
@@ -418,6 +472,14 @@ static void cst816s_poll_notify(FAR struct cst816s_dev_s *priv)
         }
     }
 }
+
+/****************************************************************************
+ * Name: cst816s_poll
+ *
+ * Description:
+ *   Poll for updates.
+ *
+ ****************************************************************************/
 
 static int cst816s_poll(FAR struct file *filep, FAR struct pollfd *fds,
                         bool setup)
@@ -501,6 +563,14 @@ out:
   return ret;
 }
 
+/****************************************************************************
+ * Name: cst816s_isr_handler
+ *
+ * Description:
+ *   Handle GPIO Interrupt triggered by touch.
+ *
+ ****************************************************************************/
+
 static int cst816s_isr_handler(int _irq, FAR void *_context, FAR void *arg)
 {
   FAR struct cst816s_dev_s *priv = (FAR struct cst816s_dev_s *)arg;
@@ -518,6 +588,14 @@ static int cst816s_isr_handler(int _irq, FAR void *_context, FAR void *arg)
 
 /****************************************************************************
  * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: cst816s_isr_handler
+ *
+ * Description:
+ *   Register the CST816S device (e.g. /dev/input0).
+ *
  ****************************************************************************/
 
 int cst816s_register(FAR const char *devpath,
@@ -582,8 +660,10 @@ int cst816s_register(FAR const char *devpath,
   return 0;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//  BL602 GPIO Interrupt. TODO: Move this to BL602 GPIO Expander
+/****************************************************************************
+ * BL602 GPIO Interrupt. TODO: Move this to BL602 GPIO Expander
+ * https://github.com/lupyuen/bl602_expander
+ ****************************************************************************/
 
 #include <nuttx/ioexpander/gpio.h>
 #include <arch/board/board.h>
@@ -603,8 +683,15 @@ static FAR void *bl602_expander_arg = NULL;
 //  struct ioexpander_dev_s;
 //  typedef CODE int (*ioe_callback_t)(FAR struct ioexpander_dev_s *dev, ioe_pinset_t pinset, FAR void *arg);
 
-//  Attach Interrupt Handler to GPIO Interrupt for Touch Controller
-//  Based on https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L477-L505
+/****************************************************************************
+ * Name: bl602_irq_attach
+ *
+ * Description:
+ *   Attach Interrupt Handler to GPIO Interrupt for Touch Controller.
+ *   Based on https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L477-L505 
+ *
+ ****************************************************************************/
+
 static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR void *arg)
 {
   int ret = 0;
@@ -639,8 +726,15 @@ static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR
   return 0;
 }
 
-//  Enable GPIO Interrupt for Touch Controller
-//  Based on https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L507-L535
+/****************************************************************************
+ * Name: bl602_irq_enable
+ *
+ * Description:
+ *   Enable or disable GPIO Interrupt for Touch Controller.
+ *   Based on https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L507-L535
+ *
+ ****************************************************************************/
+
 static int bl602_irq_enable(bool enable)
 {
   if (enable)
@@ -668,7 +762,7 @@ static int bl602_irq_enable(bool enable)
  * Name: bl602_expander_interrupt
  *
  * Description:
- *   gpio interrupt. Based on
+ *   Handle GPIO Interrupt. Based on
  *   https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L256-L304
  *
  ****************************************************************************/
@@ -718,7 +812,7 @@ static int bl602_expander_interrupt(int irq, void *context, void *arg)
  * Name: bl602_expander_intmask
  *
  * Description:
- *   intmask a gpio pin. Based on
+ *   Set Interrupt Mask for a GPIO Pin. Based on
  *   https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L143-L169
  *
  ****************************************************************************/
@@ -752,7 +846,7 @@ static void bl602_expander_intmask(uint8_t gpio_pin, int intmask)
  * Name: bl602_expander_set_intmod
  *
  * Description:
- *   set gpio intmod. Based on
+ *   Set GPIO Interrupt Mode. Based on
  *   https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L171-L212
  *
  ****************************************************************************/
@@ -801,7 +895,7 @@ static void bl602_expander_set_intmod(uint8_t gpio_pin,
  * Name: bl602_expander_get_intstatus
  *
  * Description:
- *   get gpio intstatus. Based on
+ *   Get GPIO Interrupt Status. Based on
  *   https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L214-L234
  *
  ****************************************************************************/
@@ -829,7 +923,7 @@ static int bl602_expander_get_intstatus(uint8_t gpio_pin)
  * Name: bl602_expander_intclear
  *
  * Description:
- *   clear gpio int. Based on
+ *   Clear GPIO Interrupt. Based on
  *   https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L236-L254
  *
  ****************************************************************************/
