@@ -177,6 +177,7 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
            * Keep trying.
            */
 
+          iwarn("NACK\n"); ////
           continue;
         }
       else if (ret >= 0)
