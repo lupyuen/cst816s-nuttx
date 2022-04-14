@@ -236,14 +236,13 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 
   /* Interpret the raw touch data. */
 
-  uint8_t idhigh = readbuf[0] & 0x0f;
-  uint8_t idlow  = readbuf[1];
-  uint8_t touchpoints = readbuf[2] & 0x0f;  /* Touch Points can only be 0 or 1. */
+  uint8_t id = readbuf[5] >> 4;
+  uint8_t touchpoints = readbuf[2] & 0x0f;  /* Touch Points can only be 0 or 1 */
   uint8_t xhigh = readbuf[3] & 0x0f;
   uint8_t xlow  = readbuf[4];
   uint8_t yhigh = readbuf[5] & 0x0f;
   uint8_t ylow  = readbuf[6];
-  uint16_t id = (idhigh << 8) | idlow;
+  uint8_t event = readbuf[3] >> 6;  /* 0 = Touch Down, 1 = Touch Up, 2 = Contact */
   uint16_t x  = (xhigh  << 8) | xlow;
   uint16_t y  = (yhigh  << 8) | ylow;
 
@@ -252,8 +251,8 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   bool valid = true;
   if (x >= 240 || y >= 240) {
     valid = false;
+    iwarn("Invalid touch data: id=%d, x=%d, y=%d\n", id, x, y);
     return -EINVAL;  /* Must not return invalid coordinates, because lvgldemo can't handle. */
-    //  iwarn("Invalid touch data: x=%d, y=%d\n", x, y);
   }
 
   /* Set the touch data fields. */
@@ -266,27 +265,34 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 
   /* Set the touch flags. */
 
-  if (touchpoints > 0)  /* Panel was touched. */
+  if (event == 0)  /* Touch Down */
     {
       if (valid)  /* Touch coordinates were valid. */
         {
           data.point[0].flags  = TOUCH_DOWN | TOUCH_ID_VALID | TOUCH_POS_VALID;
+          iinfo("DOWN: id=%d, x=%d, y=%d\n", id, x, y);
         }
       else  /* Touch coordinates were invalid. */
         {
           data.point[0].flags  = TOUCH_DOWN | TOUCH_ID_VALID;
         }
     }
-  else  /* Panel was just untouched. */
+  else if (event == 1)  /* Touch Up */
     {
       if (valid)  /* Touch coordinates were valid. */
         {
           data.point[0].flags  = TOUCH_UP | TOUCH_ID_VALID | TOUCH_POS_VALID;
+          iinfo("UP: id=%d, x=%d, y=%d\n", id, x, y);
         }
       else  /* Touch coordinates were invalid. */
         {
           data.point[0].flags  = TOUCH_UP | TOUCH_ID_VALID;
         }
+    }
+  else
+    {
+      iinfo("CONTACT: id=%d, x=%d, y=%d\n", id, x, y);
+      return -EINVAL;
     }
 
   /* Return the touch data. */
@@ -312,7 +318,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
                             size_t buflen)
 {
-  iinfo("\n"); ////
+  //  iinfo("\n"); ////
   FAR struct inode *inode;
   FAR struct cst816s_dev_s *priv;
   size_t outlen;
@@ -337,10 +343,11 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
 
   ret = -EINVAL;
 
-  /* Read the touch data over I2C. */
+  /* Read the touch data over I2C, only if screen has been touched */
 
   outlen = sizeof(struct touch_sample_s);
-  if (buflen >= outlen)
+  static int throttle = 0;
+  if (/* (priv->int_pending || throttle++ % 10 == 0) && */ buflen >= outlen)
     {
       ret = cst816s_get_touch_data(priv, buffer);
     }
