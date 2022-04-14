@@ -122,9 +122,10 @@ static const struct file_operations g_cst816s_fileops =
 #endif
 };
 
-/* Last event and last valid touch coordinates */
+/* Last event, last ID and last valid touch coordinates */
 
 static uint8_t  last_event = 0xff;
+static uint8_t  last_id    = 0xff;
 static uint16_t last_x     = 0xffff;
 static uint16_t last_y     = 0xffff;
 
@@ -260,13 +261,15 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   if (x >= 240 || y >= 240) {
     iwarn("Invalid touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
     valid = false;
-    x = last_x;
-    y = last_y;
+    id = last_id;
+    x  = last_x;
+    y  = last_y;
   }
 
   /* Remember the last valid touch data. */
 
   last_event = event;
+  last_id    = id;
   last_x     = x;
   last_y     = y;
 
@@ -304,7 +307,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
           data.point[0].flags  = TOUCH_UP | TOUCH_ID_VALID;
         }
     }
-  else  /* Contact */
+  else  /* Reject Contact */
     {
       iinfo("CONTACT: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
       return -EINVAL;

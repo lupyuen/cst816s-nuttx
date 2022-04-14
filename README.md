@@ -370,13 +370,15 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   if (x >= 240 || y >= 240) {
     iwarn("Invalid touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
     valid = false;
-    x = last_x;
-    y = last_y;
+    id = last_id;
+    x  = last_x;
+    y  = last_y;
   }
 
   /* Remember the last valid touch data. */
 
   last_event = event;
+  last_id    = id;
   last_x     = x;
   last_y     = y;
 
@@ -414,7 +416,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
           data.point[0].flags  = TOUCH_UP | TOUCH_ID_VALID;
         }
     }
-  else  /* Contact */
+  else  /* Reject Contact */
     {
       iinfo("CONTACT: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
       return -EINVAL;
@@ -440,7 +442,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 Touch Data from `lvgltest` looks OK!
 
 ```text
-▒gpio_pin_register: Registering /dev/gpio0
+gpio_pin_register: Registering /dev/gpio0
 gpio_pin_register: Registering /dev/gpio1
 gpint_enable: Disable the interrupt
 gpio_pin_register: Registering /dev/gpio2
@@ -466,52 +468,39 @@ bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
-bl602_i2c_recvdata: count=3, temp=0x1e00d5
+bl602_i2c_recvdata: count=3, temp=0x1700de
 ransfer success
-cst816s_get_touch_data: DOWN: id=0, touch=0, x=213, y=30
+cst816s_get_touch_data: DOWN: id=0,touch=0, x=222, y=23
 cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
-cst816s_get_touch_data:   x:       213
-cst816s_get_touch_data:   y:       30
+cst816s_get_touch_data:   x:       222
+cst816s_get_touch_data:   y:       23
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
-bl602_i2c_recvdata: count=3, temp=0x1e00d5
+bl602_i2c_recvdata: count=3, temp=0x1700de
 ransfer success
-cst816s_get_touch_data: DOWN: id=0, touch=0, x=213, y=30
+cst816s_get_touch_data: DOWN: id=0, ouch=0, x=222, y=23
 cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
-cst816s_get_touch_data:   x:       213
-cst816s_get_touch_data:   y:       30
+cst816s_get_touch_data:   x:       222
+cst816s_get_touch_data:   y:       23
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
-bl602_i2c_recvdata: count=3, temp=0x1e00d5
+bl602_i2c_recvdata: count=3, temp=0x1700de
 ransfer success
-cst816s_get_touch_data: DOWN: id=0, touch=0, x=213, y=30
+cst816s_get_touch_data: DOWN: id=0, touch=0, x=222, y=23
 cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
-cst816s_get_touch_data:   x:       213
-cst816s_get_touch_data:   y:       30
-cst816s_get_touch_data:
-cst816s_i2c_read:
-bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
-bl602_i2c_transfer: i2c transfer success
-bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
-bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
-bl602_i2c_recvdata: count=3, temp=0x1e00d5
-ransfer success
-cst816s_get_touch_data: DOWN: id=0, touch=0, x=213, y=30
-cst816s_get_touch_data:   id:      0
-cst816s_get_touch_data:   flags:   19
-cst816s_get_touch_data:   x:       213
-cst816s_get_touch_data:   y:       30
+cst816s_get_touch_data:   x:       222
+cst816s_get_touch_data:   y:       23
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -519,52 +508,11 @@ bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 cst816s_get_touch_data: Invalid touch data: id=9, touch=2, x=639, y=1688
-cst816s_get_touch_data: UP: id=9, touch=2, x=213, y=30
-cst816s_get_touch_data:   id:      9
-cst816s_get_touch_data:   flags:   0c
-cst816s_get_touch_data:   x:       213
-cst816s_get_touch_data:   y:       30
-bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
-bl602_expander_interrupt: Call callback=0x2305e596, arg=0x4220a70
-cst816s_poll_notify:
-cst816s_get_touch_data:
-cst816s_i2c_read:
-bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
-bl602_i2c_transfer: i2c transfer success
-bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
-bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
-bl602_i2c_recvdata: count=3, temp=0xd300ed
-ransfer success
-cst816s_get_touch_data: DOWN: id=0, touch=0, x=237, y=211
+cst816s_get_touch_data: UP: id=0, touch=2, x=222, y=23
 cst816s_get_touch_data:   id:      0
-cst816s_get_touch_data:   flags:   19
-cst816s_get_touch_data:   x:       237
-cst816s_get_touch_data:   y:       211
-cst816s_get_touch_data:
-cst816s_i2c_read:
-bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
-bl602_i2c_transfer: i2c transfer success
-bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
-bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
-bl602_i2c_recvdata: count=3, temp=0xd300ed
-ransfer success
-cst816s_get_touch_data: DOWN: id=0, touch=0, x=237, y=211
-cst816s_get_touch_data:   id:      0
-cst816s_get_touch_data:   flags:   19
-cst816s_get_touch_data:   x:       237
-cst816s_get_touch_data:   y:       211
-cst816s_get_touch_data:
-cst816s_i2c_read:
-bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
-bl602_i2c_transfer: i2c transfer success
-bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
-bl602_i2c_transfer: i2c transfer success
-cst816s_get_touch_data: Invalid touch data: id=4, touch=2, x=636, y=3330
-cst816s_get_touch_data: UP: id=4, touch=2, x=237, y=211
-cst816s_get_touch_data:   id:      4
 cst816s_get_touch_data:   flags:   0c
-cst816s_get_touch_data:   x:       237
-cst816s_get_touch_data:   y:       211
+cst816s_get_touch_data:   x:       222
+cst816s_get_touch_data:   y:       23
 bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
 bl602_expander_interrupt: Call callback=0x2305e596, arg=0x42020a70
 cst816s_poll_notify:
@@ -574,26 +522,26 @@ bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
-bl602_i2c_recvdata: count=3, temp=0xde0017
+bl602_i2c_recvdata: count=3, temp=0xd900db
 ransfer success
-cst816s_get_touch_data: DOWN: id=0, touch=0, x=23, y=222
+cst816s_get_touch_data: DOWN: id=0, touch=0, x=219, y=217
 cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
-cst816s_get_touch_data:   x:       23
-cst816s_get_touch_data:   y:       222
+cst816s_get_touch_data:   x:       219
+cst816s_get_touch_data:   y:       217
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
-bl602_i2c_recvdata: count=3, temp=0xde0017
+bl602_i2c_recvdata: count=3, temp=0xd900db
 ransfer success
-cst816s_get_touch_data: DOWN: id=0, touch=0, x=23, y=222
+cst816s_get_touch_data: DOWN: id=0, touch=0, x=219, y=217
 cst816s_get_touch_data:   id:      0
-cst816s_get_touch_data:   flags:   19
-cst816s_get_touch_data:   x:       23
-cst816s_get_touch_data:   y:       222
+cst816s_get_touch_data:   flags:  19
+cst816s_get_touch_data:   x:       219
+cst816s_get_touch_data:   y:       217
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -601,11 +549,11 @@ bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 cst816s_get_touch_data: Invalid touch data: id=4, touch=2, x=636, y=3330
-cst816s_get_touch_data: UP: id=4, touch=2, x=23, y=222
-cst816s_get_touch_data:   id:      4
+cst816s_get_touch_data: UP: id=0, touch=2, x=219, y=217
+cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   0c
-cst816s_get_touch_data:   x:       23
-cst816s_get_touch_data:   y:       222
+cst816s_get_touch_data:   x:       219
+cst816s_get_touch_data:   y:       217
 bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
 bl602_expander_interrupt: Call callback=0x2305e596, arg=0x42020a70
 cst816s_poll_notify:
@@ -615,26 +563,26 @@ bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
-bl602_i2c_recvdata: count=3, temp=0x1b0006
+bl602_i2c_recvdata: count=3, temp=0xdb0022
 ransfer success
-cst816s_get_touch_data: DOWN: id=0, touch=0, x=6, y=27
+cst816s_get_touch_data: DOWN: id=0, touch=0, x=34, y=219
 cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
-cst816s_get_touch_data:   x:       6
-cst816s_get_touch_data:   y:       27
+cst816s_get_touch_data:   x:       34
+cst816s_get_touch_data:   y:       219
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
-bl602_i2c_recvdata: count=3, temp=0x1b0006
+bl602_i2c_recvdata: count=3, temp=0xdb0022
 ransfer success
-cst816s_get_touch_data: DOWN: id=0, touch=0, x=6, y=27
+cst816s_get_touch_data: DOWN: id=0, touch=0, x=34, y=219
 cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
-cst816s_get_touch_data:   x:       6
-cst816s_get_touch_data:   y:       27
+cst816s_get_touch_data:   x:       34
+cst816s_get_touch_data:   y:       219
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -642,11 +590,11 @@ bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 cst816s_get_touch_data: Invalid touch data: id=4, touch=2, x=636, y=3330
-cst816s_get_touch_data: UP: id=4, touch=2, x=6, y=27
-cst816s_get_touch_data:   id:      4
+cst816s_get_touch_data: UP: id=0, touch=2, x=34, y=219
+cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   0c
-cst816s_get_touch_data:   x:       6
-cst816s_get_touch_data:   y:       27
+cst816s_get_touch_data:   x:       34
+cst816s_get_touch_data:   y:       219
 bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
 bl602_expander_interrupt: Call callback=0x2305e596, arg=0x42020a70
 cst816s_poll_notify:
@@ -656,26 +604,26 @@ bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
-bl602_i2c_recvdata: count=3, temp=0x860081
+bl602_i2c_recvdata: count=3, temp=0x180018
 ransfer success
-cst16s_get_touch_data: DOWN: id=0, touch=0, x=129, y=134
+cst816s_get_touch_data: DOWN: id=0, touch=0, x=24, y=24
 cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
-cst816s_get_touch_data:   x:       129
-cst816s_get_touch_data:   y:       134
+cst816s_get_touch_data:   x:       24
+cst816s_get_touch_data:   y:       24
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
-bl602_i2c_recvdata: count=3, temp=0x860081
+bl602_i2c_recvdata: count=3, temp=0x180018
 ransfer success
-cst816s_get_touch_data: DOWN: id=0, touch=0, x=129, y=134
+cst816s_get_touch_data: DOWN: id=0, touch=0, x=24, y=24
 cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
-cst816s_get_touch_data:   x:       129
-cst816s_get_touch_data:   y:       134
+cst816s_get_touch_data:   x:       24
+cst816s_get_touch_data:   y:       24
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -683,14 +631,55 @@ bl602_i2c_transfer: i2c transfer success
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
 bl602_i2c_transfer: i2c transfer success
 cst816s_get_touch_data: Invalid touch data: id=4, touch=2, x=636, y=3330
-cst816s_get_touch_data: UP: id=4, touch=2, x=129, y=134
-cst816s_get_touch_data:   id:      4
+cst816s_get_touch_data: UP: id=0, touch=2, x=24, y=24
+cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   0c
-cst816s_get_touch_data:   x:       129
-cst816s_get_touch_data:   y:       134
+cst816s_get_touch_data:   x:       24
+cst816s_get_touch_data:   y:       24
+bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
+bl602_expander_interrupt: Call callback=0x2305e596, arg=0x42020a70
+cst816s_poll_notify:
+cst816s_get_touch_data:
+cst816s_i2c_read:
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c transfer success
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
+bl602_i2c_recvdata: count=3, temp=0x8d0076
+ransfer success
+cst816s_get_touch_data: DOWN: id=0, touch=0, x=118, y=141
+cst816s_get_touch_data:   id:      0
+cst816s_get_touch_data:   flags:   19
+cst816s_get_touch_data:   x:       118
+cst816s_get_touch_data:   y:       141
+cst816s_get_touch_data:
+cst816s_i2c_read:
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c transfer success
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
+bl602_i2c_recvdata: count=3, temp=0x8d0076
+ransfer success
+cst816s_get_touch_data: DOWN: id=0, touch=0, x=118, y=141
+cst816s_get_touch_data:   id:      0
+cst816s_get_touch_data:   flags:   19
+cst816s_get_touch_data:   x:       118
+cst816s_get_touch_data:   y:       141
+cst816s_get_touch_data:
+cst816s_i2c_read:
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c transfer success
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c transfer success
+cst816s_get_touch_data: Invalid touch data: id=4, touch=2, x=636, y=3330
+cst816s_get_touch_data: UP: id=0, touch=2, x=118, y=141
+cst816s_get_touch_data:   id:      0
+cst816s_get_touch_data:   flags:   0c
+cst816s_get_touch_data:   x:       118
+cst816s_get_touch_data:   y:       141
 tp_cal result
-offset x:30, y:6
-range x:181, y:207
+offset x:23, y:24
+range x:194, y:198
 invert x/y:1, x:0, y:1
 ```
 
