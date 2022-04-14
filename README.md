@@ -286,6 +286,51 @@ bl602_expander_interrupt: Interrupt! callback=0x2305e9e8, arg=0
 bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
 ```
 
+# Touch Data
+
+Apache NuttX RTOS has a standard data format for Touch Panels ... Let's implement this for PineDio Stack
+
+```c
+/* This structure contains information about a single touch point.
+ * Positional units are device specific.
+ */
+
+struct touch_point_s
+{
+  uint8_t  id;        /* Unique identifies contact; Same in all reports for the contact */
+  uint8_t  flags;     /* See TOUCH_* definitions above */
+  int16_t  x;         /* X coordinate of the touch point (uncalibrated) */
+  int16_t  y;         /* Y coordinate of the touch point (uncalibrated) */
+  int16_t  h;         /* Height of touch point (uncalibrated) */
+  int16_t  w;         /* Width of touch point (uncalibrated) */
+  uint16_t gesture;   /* Gesture of touchscreen contact */
+  uint16_t pressure;  /* Touch pressure */
+  uint64_t timestamp; /* Touch event time stamp, in microseconds */
+};
+
+/* The typical touchscreen driver is a read-only, input character device
+ * driver.the driver write() method is not supported and any attempt to
+ * open the driver in any mode other than read-only will fail.
+ *
+ * Data read from the touchscreen device consists only of touch events and
+ * touch sample data.  This is reflected by struct touch_sample_s.  This
+ * structure is returned by either the driver read method.
+ *
+ * On some devices, multiple touchpoints may be supported. So this top level
+ * data structure is a struct touch_sample_s that "contains" a set of touch
+ * points.  Each touch point is managed individually using an ID that
+ * identifies a touch from first contact until the end of the contact.
+ */
+
+struct touch_sample_s
+{
+  int npoints;                   /* The number of touch points in point[] */
+  struct touch_point_s point[1]; /* Actual dimension is npoints */
+};
+```
+
+[(Source)](https://github.com/lupyuen/incubator-nuttx/blob/touch/include/nuttx/input/touchscreen.h#L113-L148)
+
 # Read Touch Data
 
 Here's how we read the Touched Coordinates in our driver...
