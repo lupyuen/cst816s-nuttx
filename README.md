@@ -155,7 +155,7 @@ bl602_expander_interrupt: Call callback=0x2305e9de, arg=0x42020a60
 cst816s_poll_notify:
 ```
 
-LVGL Test App fails to open `/dev/input0`, but that's OK because we haven't implemented the I2C part.
+LVGL Test App `lvgltest` fails to open `/dev/input0`, but that's OK because we haven't implemented the I2C part.
 
 ```text
 nsh> ls /dev
@@ -195,11 +195,10 @@ bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
 
 # Test Touch Data
 
-Touch Data looks OK!
+Touch Data from `lvgltest` looks OK!
 
 ```text
-=~=~=~=~=~=~=~=~=~=~=~= PuTTY log 2022.04.14 10:14:50 =~=~=~=~=~=~=~=~=~=~=~=
-ÿgpio_pin_register: Registering /dev/gpio0
+gpio_pin_register: Registering /dev/gpio0
 gpio_pin_register: Registering /dev/gpio1
 gpint_enable: Disable the interrupt
 gpio_pin_register: Registering /dev/gpio2
@@ -408,7 +407,7 @@ cst816s_get_touch_data:   y:       109
 
 # Screen Is Sideways
 
-According to the touch data, our screen is rotated sideways...
+According to the touch data from `lvgltest`, our screen is rotated sideways...
 
 -   Top Left: x=181, y=12
 
