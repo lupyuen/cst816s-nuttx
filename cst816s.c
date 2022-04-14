@@ -591,7 +591,7 @@ static int cst816s_isr_handler(int _irq, FAR void *_context, FAR void *arg)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: cst816s_isr_handler
+ * Name: cst816s_register
  *
  * Description:
  *   Register the CST816S device (e.g. /dev/input0).
