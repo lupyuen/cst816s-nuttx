@@ -212,6 +212,8 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
   return ret;
 }
 
+static uint8_t last_event = 0xff; ////
+
 /****************************************************************************
  * Name: cst816s_get_touch_data
  *
@@ -245,6 +247,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   uint8_t yhigh = readbuf[5] & 0x0f;
   uint8_t ylow  = readbuf[6];
   uint8_t event = readbuf[3] >> 6;  /* 0 = Touch Down, 1 = Touch Up, 2 = Contact */
+  last_event = event;
   uint16_t x  = (xhigh  << 8) | xlow;
   uint16_t y  = (yhigh  << 8) | ylow;
 
@@ -272,7 +275,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
       if (valid)  /* Touch coordinates were valid. */
         {
           data.point[0].flags  = TOUCH_DOWN | TOUCH_ID_VALID | TOUCH_POS_VALID;
-          iinfo("DOWN: id=%d, x=%d, y=%d\n", id, x, y);
+          iinfo("DOWN: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
         }
       else  /* Touch coordinates were invalid. */
         {
@@ -284,7 +287,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
       if (valid)  /* Touch coordinates were valid. */
         {
           data.point[0].flags  = TOUCH_UP | TOUCH_ID_VALID | TOUCH_POS_VALID;
-          iinfo("UP: id=%d, x=%d, y=%d\n", id, x, y);
+          iinfo("UP: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
         }
       else  /* Touch coordinates were invalid. */
         {
@@ -293,7 +296,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
     }
   else
     {
-      iinfo("CONTACT: id=%d, x=%d, y=%d\n", id, x, y);
+      iinfo("CONTACT: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
       return -EINVAL;
     }
 
@@ -349,7 +352,7 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
 
   outlen = sizeof(struct touch_sample_s);
   static int throttle = 0;
-  if ((priv->int_pending /* || throttle++ % 10 == 0 */ ) && buflen >= outlen)
+  if ((priv->int_pending || last_event == 0 /* || throttle++ % 10 == 0 */ ) && buflen >= outlen)
     {
       ret = cst816s_get_touch_data(priv, buffer);
     }
