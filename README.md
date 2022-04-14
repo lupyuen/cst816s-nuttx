@@ -189,6 +189,10 @@ static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR
 
 Note that we're calling `bl602_expander` to handle interrupts. There doesn't seem to be a way to do this with the current BL602 GPIO Driver (`bl602evb/bl602_gpio.c`).
 
+We are building `bl602_expander` here...
+
+-   [lupyuen/bl602_expander](https://github.com/lupyuen/bl602_expander)
+
 To test interrupts we uncomment `#define TEST_CST816S_INTERRUPT`...
 
 ```c
