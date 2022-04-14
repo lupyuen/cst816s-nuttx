@@ -116,7 +116,49 @@ PineDio Stack's Touch Panel is a peculiar I2C Device ... It won't respond to I2C
 
 # GPIO Interrupt
 
-TODO
+Here's how we handle the GPIO Interrupt that's triggered whenever the screen it touched...
+
+```c
+//  Attach Interrupt Handler to GPIO Interrupt for Touch Controller
+//  Based on https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L477-L505
+static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR void *arg)
+{
+  int ret = 0;
+  uint8_t gpio_pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
+  FAR struct bl602_gpint_dev_s *dev = NULL;  //  TODO
+
+  DEBUGASSERT(callback != NULL);
+
+  /* Configure the pin that will be used as interrupt input */
+
+  #warning Check GLB_GPIO_INT_TRIG_NEG_PULSE  ////  TODO
+  bl602_expander_set_intmod(gpio_pin, 1, GLB_GPIO_INT_TRIG_NEG_PULSE);
+  ret = bl602_configgpio(pinset);
+  if (ret < 0)
+    {
+      gpioerr("Failed to configure GPIO pin %d\n", gpio_pin);
+      return ret;
+    }
+
+  /* Make sure the interrupt is disabled */
+
+  bl602_expander_pinset = pinset;
+  bl602_expander_callback = callback;
+  bl602_expander_arg = arg;
+  bl602_expander_intmask(gpio_pin, 1);
+
+  irq_attach(BL602_IRQ_GPIO_INT0, bl602_expander_interrupt, dev);
+  bl602_expander_intmask(gpio_pin, 0);
+
+  gpioinfo("Attach %p\n", callback);
+
+  return 0;
+}
+```
+
+[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L1148-L1182)
+
+Note that we're calling `bl602_expander` to handle interrupts. There doesn't seem to be a way to do this with the current BL602 GPIO Driver (`bl602evb/bl602_gpio.c`).
 
 There's bug with BL602 GPIO Interrupts that we have fixed for our driver...
 
@@ -192,6 +234,97 @@ bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
 bl602_expander_interrupt: Interrupt! callback=0x2305e9e8, arg=0
 bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
 ```
+
+# Read Touch Data
+
+Here's how we read the touch data in our driver...
+
+```c
+static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
+{
+  iinfo("\n"); ////
+  struct touch_sample_s data;
+  uint8_t readbuf[7];
+  int ret;
+
+  /* Read the raw touch data. */
+
+  ret = cst816s_i2c_read(dev, CST816S_REG_TOUCHDATA, readbuf, sizeof(readbuf));
+  if (ret < 0)
+    {
+      iinfo("Read touch data failed\n");
+      return ret;
+    }
+
+  /* Interpret the raw touch data. */
+
+  uint8_t idhigh = readbuf[0] & 0x0f;
+  uint8_t idlow  = readbuf[1];
+  uint8_t touchpoints = readbuf[2] & 0x0f;  /* Touch Points can only be 0 or 1. */
+  uint8_t xhigh = readbuf[3] & 0x0f;
+  uint8_t xlow  = readbuf[4];
+  uint8_t yhigh = readbuf[5] & 0x0f;
+  uint8_t ylow  = readbuf[6];
+  uint16_t id = (idhigh << 8) | idlow;
+  uint16_t x  = (xhigh  << 8) | xlow;
+  uint16_t y  = (yhigh  << 8) | ylow;
+
+  /* Validate the touch coordinates. */
+
+  bool valid = true;
+  if (x >= 240 || y >= 240) {
+    valid = false;
+    return -EINVAL;  /* Must not return invalid coordinates, because lvgldemo can't handle. */
+    //  iwarn("Invalid touch data: x=%d, y=%d\n", x, y);
+  }
+
+  /* Set the touch data fields. */
+
+  memset(&data, 0, sizeof(data));
+  data.npoints     = 1;
+  data.point[0].id = id;
+  data.point[0].x  = x;
+  data.point[0].y  = y;
+
+  /* Set the touch flags. */
+
+  if (touchpoints > 0)  /* Panel was touched. */
+    {
+      if (valid)  /* Touch coordinates were valid. */
+        {
+          data.point[0].flags  = TOUCH_DOWN | TOUCH_ID_VALID | TOUCH_POS_VALID;
+        }
+      else  /* Touch coordinates were invalid. */
+        {
+          data.point[0].flags  = TOUCH_DOWN | TOUCH_ID_VALID;
+        }
+    }
+  else  /* Panel was just untouched. */
+    {
+      if (valid)  /* Touch coordinates were valid. */
+        {
+          data.point[0].flags  = TOUCH_UP | TOUCH_ID_VALID | TOUCH_POS_VALID;
+        }
+      else  /* Touch coordinates were invalid. */
+        {
+          data.point[0].flags  = TOUCH_UP | TOUCH_ID_VALID;
+        }
+    }
+
+  /* Return the touch data. */
+
+  memcpy(buf, &data, sizeof(data));
+
+  iinfo("  id:      %d\n",   data.point[0].id);
+  iinfo("  flags:   %02x\n", data.point[0].flags);
+  iinfo("  x:       %d\n",   data.point[0].x);
+  iinfo("  y:       %d\n",   data.point[0].y);
+
+  return sizeof(data);
+}
+```
+
+[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L599-L680)
 
 # Test Touch Data
 
