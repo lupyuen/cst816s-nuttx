@@ -282,10 +282,10 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 
   if (event == 0)  /* Touch Down */
     {
+      iinfo("DOWN: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
       if (valid)  /* Touch coordinates were valid. */
         {
           data.point[0].flags  = TOUCH_DOWN | TOUCH_ID_VALID | TOUCH_POS_VALID;
-          iinfo("DOWN: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
         }
       else  /* Touch coordinates were invalid. */
         {
@@ -294,17 +294,17 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
     }
   else if (event == 1)  /* Touch Up */
     {
+      iinfo("UP: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
       if (valid)  /* Touch coordinates were valid. */
         {
           data.point[0].flags  = TOUCH_UP | TOUCH_ID_VALID | TOUCH_POS_VALID;
-          iinfo("UP: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
         }
       else  /* Touch coordinates were invalid. */
         {
           data.point[0].flags  = TOUCH_UP | TOUCH_ID_VALID;
         }
     }
-  else
+  else  /* Contact */
     {
       iinfo("CONTACT: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
       return -EINVAL;
