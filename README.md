@@ -119,6 +119,35 @@ PineDio Stack's Touch Panel is a peculiar I2C Device ... It won't respond to I2C
 PineDio Stack's Touch Panel triggers a GPIO Interrupt when we tap the screen ... Here's how we handle the GPIO Interrupt
 
 ```c
+int cst816s_register(FAR const char *devpath,
+                     FAR struct i2c_master_s *i2c_dev,
+                     uint8_t i2c_devaddr)
+{
+  ...
+  /* Prepare interrupt line and handler. */
+
+  ret = bl602_irq_attach(BOARD_TOUCH_INT, cst816s_isr_handler, priv);
+  if (ret < 0)
+    {
+      kmm_free(priv);
+      ierr("Attach interrupt failed\n");
+      return ret;
+    }
+
+  ret = bl602_irq_enable(false);
+  if (ret < 0)
+    {
+      kmm_free(priv);
+      ierr("Disable interrupt failed\n");
+      return ret;
+    }
+```
+
+[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L1065-L1125)
+
+`bl602_irq_attach` is defined below...
+
+```c
 //  Attach Interrupt Handler to GPIO Interrupt for Touch Controller
 //  Based on https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L477-L505
 static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR void *arg)

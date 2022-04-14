@@ -1302,7 +1302,7 @@ static void bl602_expander_intmask(uint8_t gpio_pin, int intmask)
 static void bl602_expander_set_intmod(uint8_t gpio_pin,
               uint8_t int_ctlmod, uint8_t int_trgmod)
 {
-  gpioinfo("****gpio_pin=%d, int_ctlmod=%d, int_trgmod=%d\n", gpio_pin, int_ctlmod, int_trgmod); //// TODO
+  gpioinfo("gpio_pin=%d, int_ctlmod=%d, int_trgmod=%d\n", gpio_pin, int_ctlmod, int_trgmod); ////
   uint32_t tmp_val;
 
   if (gpio_pin < GPIO_PIN10)
