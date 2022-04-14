@@ -177,7 +177,7 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
            * Keep trying.
            */
 
-          iwarn("NACK\n"); ////
+          iwarn("I2C NACK\n"); ////
           continue;
         }
       else if (ret >= 0)
@@ -190,6 +190,7 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
         {
           /* Some other error. Try to reset I2C bus and keep trying. */
 
+          iwarn("I2C error\n"); ////
 #ifdef CONFIG_I2C_RESET
           if (retries == CST816S_I2C_RETRIES - 1)
             {
