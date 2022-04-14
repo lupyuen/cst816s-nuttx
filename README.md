@@ -602,3 +602,13 @@ So be careful when mapping the touch coordinates.
 We can rotate the display in the ST7789 Driver. But first we need to agree which way is "up"...
 
 https://twitter.com/MisterTechBlog/status/1514438646568415232
+
+# I2C Logging
+
+The driver won't return any valid touch data unless we enable I2C Logging. Sounds like a I2C timing issue.
+
+`lvgltest` reads the driver very often, which generates highly frequent I2C Reads for the touch data.
+
+Maybe the driver should do an I2C Read of the touch data only upon GPIO Interrupt. And cache the touch data until the next GPIO Interrupt.
+
+TODO
