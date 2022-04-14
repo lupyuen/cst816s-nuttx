@@ -1133,7 +1133,7 @@ int cst816s_register(FAR const char *devpath,
 #include "../arch/risc-v/src/bl602/bl602_gpio.h"
 
 static int bl602_expander_interrupt(int irq, void *context, void *arg);
-static void bl602_expander_intmask(int pin, int intmask);
+static void bl602_expander_intmask(uint8_t gpio_pin, int intmask);
 static void bl602_expander_set_intmod(uint8_t gpio_pin, uint8_t int_ctlmod, uint8_t int_trgmod);
 static int bl602_expander_get_intstatus(uint8_t gpio_pin);
 static void bl602_expander_intclear(uint8_t gpio_pin, uint8_t int_clear);
@@ -1158,8 +1158,7 @@ static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR
   /* Configure the pin that will be used as interrupt input */
 
   #warning Check GLB_GPIO_INT_TRIG_NEG_PULSE  ////  TODO
-  #warning Should be gpio_pin, not pinset //// TODO
-  bl602_expander_set_intmod(pinset, 1, GLB_GPIO_INT_TRIG_NEG_PULSE);
+  bl602_expander_set_intmod(gpio_pin, 1, GLB_GPIO_INT_TRIG_NEG_PULSE);
   ret = bl602_configgpio(pinset);
   if (ret < 0)
     {
@@ -1266,28 +1265,27 @@ static int bl602_expander_interrupt(int irq, void *context, void *arg)
  *
  ****************************************************************************/
 
-static void bl602_expander_intmask(int pin, int intmask)
+static void bl602_expander_intmask(uint8_t gpio_pin, int intmask)
 {
-  #warning gpio_pin should be uint8_t  ////  TODO
   uint32_t tmp_val;
 
-  if (pin < GPIO_PIN28)
+  if (gpio_pin < GPIO_PIN28)
     {
       tmp_val = getreg32(BL602_GPIO_INT_MASK1);
       if (intmask == 1)
         {
-          tmp_val |= (1 << pin);
+          tmp_val |= (1 << gpio_pin);
         }
       else
         {
-          tmp_val &= ~(1 << pin);
+          tmp_val &= ~(1 << gpio_pin);
         }
 
       putreg32(tmp_val, BL602_GPIO_INT_MASK1);
     }
   else
     {
-      gpioerr("Invalid pin %d\n", pin);
+      gpioerr("Invalid pin %d\n", gpio_pin);
       DEBUGASSERT(0);
     }
 }
