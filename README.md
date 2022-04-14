@@ -569,3 +569,7 @@ According to the touch data from `lvgltest`, our screen is rotated sideways...
 -   Bottom Right: x=19, y=202
 
 So be careful when mapping the touch coordinates.
+
+We can rotate the display in the ST7789 Driver. But first we need to agree which way is "up"...
+
+https://twitter.com/MisterTechBlog/status/1514438646568415232
