@@ -255,8 +255,8 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   bool valid = true;
   if (x >= 240 || y >= 240) {
     valid = false;
-    iwarn("Invalid touch data: id=%d, x=%d, y=%d\n", id, x, y);
-    return -EINVAL;  /* Must not return invalid coordinates, because lvgldemo can't handle. */
+    iwarn("Invalid touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
+    ////TODO return -EINVAL;  /* Must not return invalid coordinates, because lvgldemo can't handle. */
   }
 
   /* Set the touch data fields. */
@@ -614,7 +614,7 @@ int cst816s_register(FAR const char *devpath,
                      FAR struct i2c_master_s *i2c_dev,
                      uint8_t i2c_devaddr)
 {
-  iinfo("\n"); ////
+  iinfo("path=%s, addr=%d\n", devpath, i2c_devaddr); ////
   struct cst816s_dev_s *priv;
   int ret = 0;
 
