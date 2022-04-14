@@ -1115,7 +1115,7 @@ int cst816s_register(FAR const char *devpath,
   iinfo("Driver registered\n");
 
 //  Uncomment this to test interrupts (tap the screen)
-//  #define TEST_CST816S_INTERRUPT
+#define TEST_CST816S_INTERRUPT
 #ifdef TEST_CST816S_INTERRUPT
 #warning Testing CST816S interrupt
   bl602_irq_enable(true);

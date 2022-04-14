@@ -116,7 +116,7 @@ PineDio Stack's Touch Panel is a peculiar I2C Device ... It won't respond to I2C
 
 # GPIO Interrupt
 
-Here's how we handle the GPIO Interrupt that's triggered whenever the screen it touched...
+PineDio Stack's Touch Panel triggers a GPIO Interrupt when we tap the screen ... Here's how we handle the GPIO Interrupt
 
 ```c
 //  Attach Interrupt Handler to GPIO Interrupt for Touch Controller
@@ -184,7 +184,7 @@ https://github.com/apache/incubator-nuttx/issues/5810#issuecomment-1098633538
 
 # Test GPIO Interrupt
 
-GPIO Interrupt works when we tap the screen!
+Tapping the screen on PineDio Stack ... Correctly triggers a GPIO Interrupt 🎉
 
 ```text
 gpio_pin_register: Registering /dev/gpio0
@@ -255,7 +255,7 @@ bl602_expander_interrupt: Call callback=0x2305e9e8, arg=0
 
 # Read Touch Data
 
-Here's how we read the touch data in our driver...
+Here's how we read the Touched Coordinates in our driver...
 
 ```c
 static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
