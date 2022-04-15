@@ -1004,4 +1004,12 @@ The driver won't return any valid Touch Data unless we enable I2C Logging. Sound
 
 This happens even after we have reduced the number of I2C Transfers (by checking GPIO Interrupts via `int_pending`).
 
-TODO: Investigate the internals of the BL602 I2C Driver
+TODO: Investigate the internals of the [BL602 I2C Driver](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c)
+
+TODO: Convert `i2cinfo()` to `i2cwarn()` to identify the problem spot
+
+TODO: Maybe call `i2cwarn()` for now to work around the issue
+
+TODO: Eventually we must disable `CONFIG_DEBUG_INFO` because the LoRaWAN Test App `lorawan_test` doesn't work when `CONFIG_DEBUG_INFO` is enabled (due to LoRaWAN Timers)
+
+TODO: LoRaWAN Test App, LoRaWAN Library, SX1262 Library, NimBLE Porting Layer, SPI Test Driver should have their own flags for logging
