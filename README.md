@@ -707,7 +707,7 @@ Let's break down the log...
 
 ## Enable GPIO Interrupt
 
-TODO
+At NuttX Startup, we register the CST816S Driver as `/dev/input0` and enable the GPIO interrupt...
 
 ```text
 gpio_pin_register: Registering /dev/gpio0
@@ -729,13 +729,19 @@ nsh>
 
 ## Start LVGL App
 
-TODO
+We run the LVGL Test App `lvgltest`...
 
 ```text
 nsh> lvgltest
 tp_init: Opening /dev/input0
 cst816s_open:
 ```
+
+Which opens the CST816S Driver.
+
+The app calls `read()` repeatedly on the CST816S Driver to get Touch Data.
+
+(But we really shouldn't do this. We ought to call `poll()` and block until Touch Data is available.)
 
 ## Trigger GPIO Interrupt
 
