@@ -778,7 +778,17 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
 
 `last_event` becomes 0 when we get a Touch Down event later.
 
+_Why do we check `int_pending`?_
+
+To reduce contention on the I2C Bus, we only read the Touch Data over I2C when the screen has been touched. We'll see this in a while.
+
 (But the LVGL Test App really shouldn't call `read()` repeatedly. It ought to call `poll()` and block until Touch Data is available)
+
+_Why do we we check `last_event`?_
+
+The Touch Controller triggers a GPIO Interrupt only upon Touch Down, not on Touch Up.
+
+So after Touch Down, we allow  [`cst816s_read()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L328-L382) to call `cst816s_get_touch_data()` to fetch the Touch Data repeatedly, until we see the Touch Up Event. We'll see this in a while.
 
 ## Trigger GPIO Interrupt
 
@@ -1000,7 +1010,67 @@ https://twitter.com/MisterTechBlog/status/1514438646568415232
 
 # I2C Logging
 
-The driver won't return any valid Touch Data unless we enable I2C Logging. Sounds like an I2C timing issue or Race Condition.
+[`cst816s_get_touch_data()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L222-L326) won't return any valid Touch Data unless we enable I2C Logging. Could be an I2C timing issue or Race Condition.
+
+With I2C Logging Enabled: We get the Touch Down Event (with valid Touch Data)...
+
+```text
+nsh> lvgltest
+tp_init: Opening /dev/input0
+cst816s_open:
+
+bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
+bl602_expander_interrupt: Call callback=0x2305e596, arg=0x42020a70
+cst816s_poll_notify:
+
+cst816s_get_touch_data:
+cst816s_i2c_read:
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c transfer success
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
+bl602_i2c_recvdata: count=3, temp=0x1700de
+Transfer success
+cst816s_get_touch_data: DOWN: id=0,touch=0, x=222, y=23
+cst816s_get_touch_data:   id:      0
+cst816s_get_touch_data:   flags:   19
+cst816s_get_touch_data:   x:       222
+cst816s_get_touch_data:   y:       23
+```
+
+With I2C Logging Disabled: We get the Touch Up Event (with invalid Touch Data)...
+
+```text
+nsh> lvgltest
+tp_init: Opening /dev/input0
+cst816s_open:
+
+bl602_expander_interrupt: Interrupt! callback=0x2305e55e, arg=0x4202070
+bl602_expander_interrupt: Call callback=0x2305e55e, arg=0x42020a70
+cst816s_poll_notify:
+
+cst816s_get_touch_data:
+cst816s_i2c_read:
+cst816s_get_touch_data: Invalid touch data: id=9, touch=2, x=639, y=1688
+cst816s_get_touch_data: UP: id=255, touch=2, x=65535, y=65535
+cst816s_get_touch_data:   id:      255
+cst816s_get_touch_data:   flags:   0c
+cst816s_get_touch_data:   x:       -1
+cst816s_get_touch_data:   y:       -1
+
+bl602_expander_interrupt: Interrupt! callback=0x2305e55e, arg=0x42020a70
+bl602_expander_interrupt: Call callback=0x2305e55e, arg=0x42020a70
+cst816s_poll_notify:
+
+cst816s_get_touch_data:
+cst816s_i2c_read:
+cst816s_get_touch_data: Invalid touch data: id=9, touch=2, x=639, y=1688
+cst816s_get_touch_data: UP: id=255, touch=2, x=65535, y=65535
+cst816s_get_touch_data:   id:      255
+cst816s_get_touch_data:   flags:   0c
+cst816s_get_touch_data:   x:       -1
+cst816s_get_touch_data:   y:       -1
+```
 
 This happens even after we have reduced the number of I2C Transfers (by checking GPIO Interrupts via `int_pending`).
 
@@ -1009,6 +1079,8 @@ TODO: Investigate the internals of the [BL602 I2C Driver](https://github.com/lup
 TODO: Convert `i2cinfo()` to `i2cwarn()` to identify the problem spot
 
 TODO: Maybe call `i2cwarn()` for now to work around the issue
+
+TODO: Probe the I2C Bus with a Logic Analyser
 
 TODO: Eventually we must disable `CONFIG_DEBUG_INFO` because the LoRaWAN Test App `lorawan_test` doesn't work when `CONFIG_DEBUG_INFO` is enabled (due to LoRaWAN Timers)
 
