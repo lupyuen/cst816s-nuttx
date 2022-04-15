@@ -815,7 +815,9 @@ And calls [`cst816s_poll_notify()`](https://github.com/lupyuen/cst816s-nuttx/blo
 
 ## Touch Down Event
 
-TODO
+Remember that the LVGL Test App keeps calling `read()` repeatedly.
+
+Now that `int_pending` is true, our driver proceeds to call [`cst816s_get_touch_data()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L222-L326) and fetch the Touch Data over I2C...
 
 ```text
 cst816s_get_touch_data:
@@ -827,6 +829,21 @@ bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
 bl602_i2c_recvdata: count=3, temp=0x1700de
 ransfer success
 cst816s_get_touch_data: DOWN: id=0,touch=0, x=222, y=23
+cst816s_get_touch_data:   id:      0
+cst816s_get_touch_data:   flags:   19
+cst816s_get_touch_data:   x:       222
+cst816s_get_touch_data:   y:       23
+```
+
+The Touch Data that was read from CST816S over I2C...
+
+```text
+cst816s_get_touch_data: DOWN: id=0,touch=0, x=222, y=23
+```
+
+Gets returned directly to the LVGL Test App as a Touch Down Event...
+
+```text
 cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
 cst816s_get_touch_data:   x:       222
