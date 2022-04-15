@@ -737,7 +737,7 @@ tp_init: Opening /dev/input0
 cst816s_open:
 ```
 
-Which opens the CST816S Driver and runs the Screen Calibration process.
+Which opens our CST816S Driver and runs the Touchscreen Calibration process.
 
 ## Read Touch Data
 
@@ -754,17 +754,64 @@ bool tp_read(struct _lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 
 [(Source)](https://github.com/lupyuen/lvgltest-nuttx/blob/main/tp.c#L115-L132)
 
-(But we really shouldn't call `read()` repeatedly. We ought to call `poll()` and block until Touch Data is available.)
+Since the screen hasn't been touched and we have no Touch Data yet, our driver returns an error `-EINVAL`...
+
+```c
+static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
+                            size_t buflen)
+{
+  ...
+  int ret = -EINVAL;
+
+  /* Read the touch data, only if screen has been touched or if we're waiting for touch up */
+  if ((priv->int_pending || last_event == 0) && buflen >= outlen)
+    {
+      ret = cst816s_get_touch_data(priv, buffer);
+    }
+```
+
+[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L336-L370)
+
+`int_pending` becomes true when a GPIO Interrupt gets triggered later.
+
+`last_event` becomes 0 when we get a Touch Down event later.
+
+(But the LVGL Test App really shouldn't call `read()` repeatedly. It ought to call `poll()` and block until Touch Data is available)
 
 ## Trigger GPIO Interrupt
 
-TODO
+We touch the screen and trigger a GPIO Interrupt...
 
 ```text
 bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
 bl602_expander_interrupt: Call callback=0x2305e596, arg=0x42020a70
 cst816s_poll_notify:
 ```
+
+The Interrupt Handler in our driver sets `int_pending` to true...
+
+```c
+static int cst816s_isr_handler(int _irq, FAR void *_context, FAR void *arg)
+{
+  FAR struct cst816s_dev_s *priv = (FAR struct cst816s_dev_s *)arg;
+  irqstate_t flags;
+
+  DEBUGASSERT(priv != NULL);
+
+  flags = enter_critical_section();
+  priv->int_pending = true;
+  leave_critical_section(flags);
+
+  cst816s_poll_notify(priv);
+  return 0;
+}
+```
+
+[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L598-L611)
+
+And calls [`cst816s_poll_notify()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L472-L498) to unblock all `poll()` callers and notify them that Touch Data is available.
+
+(But LVGL Test App doesn't `poll()` our driver, so this doesn't effect anything)
 
 ## Touch Down Event
 
