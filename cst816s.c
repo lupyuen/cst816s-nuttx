@@ -246,7 +246,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   /* Interpret the raw touch data. */
 
   uint8_t id = readbuf[5] >> 4;
-  uint8_t touchpoints = readbuf[2] & 0x0f;  /* Touch Points can only be 0 or 1 */
+  uint8_t touchpoints = readbuf[2] & 0x0f;
   uint8_t xhigh = readbuf[3] & 0x0f;
   uint8_t xlow  = readbuf[4];
   uint8_t yhigh = readbuf[5] & 0x0f;

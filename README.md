@@ -355,7 +355,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   /* Interpret the raw touch data. */
 
   uint8_t id = readbuf[5] >> 4;
-  uint8_t touchpoints = readbuf[2] & 0x0f;  /* Touch Points can only be 0 or 1 */
+  uint8_t touchpoints = readbuf[2] & 0x0f;
   uint8_t xhigh = readbuf[3] & 0x0f;
   uint8_t xlow  = readbuf[4];
   uint8_t yhigh = readbuf[5] & 0x0f;
@@ -436,6 +436,8 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 ```
 
 [(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L213-L302)
+
+Note that our NuttX Driver for PineDio Stack's Touch Panel returns 4 possible states: Touch Down vs Touch Up, Valid vs Invalid.
 
 # Test Touch Data
 
