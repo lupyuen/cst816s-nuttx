@@ -465,6 +465,12 @@ And from our previous work on PineTime, which also uses CST816S...
 
 NuttX Driver for PineDio Stack Touch Panel responds correctly to touch! 🎉
 
+PineDio Stack Touch Screen feels laggy on Apache #NuttX RTOS right now ... 2 things we can fix: 1️⃣ Increase SPI Frequency 2️⃣ Switch to SPI DMA eventually
+
+-   [Watch the demo on YouTube](https://www.youtube.com/shorts/2Nzjrlp5lcE)
+
+Here's the detailed log...
+
 ```text
 gpio_pin_register: Registering /dev/gpio0
 gpio_pin_register: Registering /dev/gpio1
