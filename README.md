@@ -486,7 +486,7 @@ PineDio Stack Touch Screen feels laggy on Apache #NuttX RTOS right now ... 2 thi
 
 -   [Watch the demo on YouTube](https://www.youtube.com/shorts/2Nzjrlp5lcE)
 
-(UPDATE: We have bumped up the SPI Frequency to max 40 MHz, still feels laggy)
+[(UPDATE: We have bumped up the SPI Frequency to max 40 MHz, still feels laggy)](https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/configs/pinedio/defconfig#L580)
 
 Here's the detailed log...
 
