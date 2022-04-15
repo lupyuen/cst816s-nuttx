@@ -56,6 +56,10 @@ make menuconfig
 
 In menuconfig, enable the Hynitron CST816S Driver under "Device Drivers → Input Device Support".
 
+Edit the function [`bl602_i2c_transfer`](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c#L671-L773) and patch this workaround...
+
+-   ["I2C Logging"](https://github.com/lupyuen/cst816s-nuttx#i2c-logging)
+
 Edit the function `bl602_bringup` or `esp32_bringup` in this file...
 
 ```text
@@ -1034,7 +1038,7 @@ https://twitter.com/MisterTechBlog/status/1514438646568415232
 
 # I2C Logging
 
-[`cst816s_get_touch_data()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L222-L326) won't return any valid Touch Data unless we enable I2C Logging. Could be an I2C timing issue or Race Condition.
+[`cst816s_get_touch_data()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L222-L326) won't return any valid Touch Data unless we enable I2C Logging. Could be an I2C Timing Issue or Race Condition.
 
 With I2C Logging Enabled: We get the Touch Down Event (with valid Touch Data)...
 
@@ -1090,13 +1094,29 @@ cst816s_get_touch_data: Can't return touch data: id=9, touch=2, x=639, y=1688
 
 This happens before and after we have reduced the number of I2C Transfers (by checking GPIO Interrupts via `int_pending`).
 
-TODO: Investigate the internals of the [BL602 I2C Driver](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c)
+The workaround is to call `i2cwarn()` in the [BL602 I2C Driver](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c) to force this specific log to be printed...
 
-TODO: Convert `i2cinfo()` to `i2cwarn()` to identify the problem spot
+```c
+static int bl602_i2c_transfer(struct i2c_master_s *dev,
+                              struct i2c_msg_s *   msgs,
+                              int                      count) {
+      ...
+      if (priv->i2cstate == EV_I2C_END_INT)
+        {
+          i2cinfo("i2c transfer success\n");
+#ifdef CONFIG_INPUT_CST816S
+          /* Workaround for CST816S. See https://github.com/lupyuen/cst816s-nuttx#i2c-logging */
 
-TODO: Maybe call `i2cwarn()` for now to work around the issue
+          i2cwarn("i2c transfer success\n");
+#endif /* CONFIG_INPUT_CST816S */
+        }
+```
 
-TODO: Probe the I2C Bus with a Logic Analyser
+[(Source)](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c#L753-L761)
+
+TODO: Investigate the internals of the [BL602 I2C Driver](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c). Look for I2C Timing Issues or Race Conditions.
+
+TODO: Probe the I2C Bus with a Logic Analyser. Watch for I2C Hardware issues.
 
 TODO: Why must we disable logging? Eventually we must disable `CONFIG_DEBUG_INFO` because the LoRaWAN Test App `lorawan_test` doesn't work when `CONFIG_DEBUG_INFO` is enabled (due to LoRaWAN Timers)
 
