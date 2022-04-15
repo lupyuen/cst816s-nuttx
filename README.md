@@ -441,7 +441,7 @@ Note that our NuttX Driver for PineDio Stack's Touch Panel returns 4 possible st
 
 # Test Touch Data
 
-Touch Data from `lvgltest` looks OK!
+NuttX Driver for PineDio Stack Touch Panel responds correctly to touch! 🎉
 
 ```text
 gpio_pin_register: Registering /dev/gpio0
@@ -461,9 +461,11 @@ NuttShell (NSH) NuttX-10.2.0-RC0
 nsh> lvgltest
 tp_init: Opening /dev/input0
 cst816s_open:
+
 bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
 bl602_expander_interrupt: Call callback=0x2305e596, arg=0x42020a70
 cst816s_poll_notify:
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -477,6 +479,7 @@ cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
 cst816s_get_touch_data:   x:       222
 cst816s_get_touch_data:   y:       23
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -490,6 +493,7 @@ cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
 cst816s_get_touch_data:   x:       222
 cst816s_get_touch_data:   y:       23
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -503,6 +507,7 @@ cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
 cst816s_get_touch_data:   x:       222
 cst816s_get_touch_data:   y:       23
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -518,6 +523,7 @@ cst816s_get_touch_data:   y:       23
 bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
 bl602_expander_interrupt: Call callback=0x2305e596, arg=0x42020a70
 cst816s_poll_notify:
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -531,6 +537,7 @@ cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
 cst816s_get_touch_data:   x:       219
 cst816s_get_touch_data:   y:       217
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -544,6 +551,7 @@ cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:  19
 cst816s_get_touch_data:   x:       219
 cst816s_get_touch_data:   y:       217
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -559,6 +567,7 @@ cst816s_get_touch_data:   y:       217
 bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
 bl602_expander_interrupt: Call callback=0x2305e596, arg=0x42020a70
 cst816s_poll_notify:
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -572,6 +581,7 @@ cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
 cst816s_get_touch_data:   x:       34
 cst816s_get_touch_data:   y:       219
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -585,6 +595,7 @@ cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
 cst816s_get_touch_data:   x:       34
 cst816s_get_touch_data:   y:       219
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -600,6 +611,7 @@ cst816s_get_touch_data:   y:       219
 bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
 bl602_expander_interrupt: Call callback=0x2305e596, arg=0x42020a70
 cst816s_poll_notify:
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -613,6 +625,7 @@ cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
 cst816s_get_touch_data:   x:       24
 cst816s_get_touch_data:   y:       24
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -626,6 +639,7 @@ cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
 cst816s_get_touch_data:   x:       24
 cst816s_get_touch_data:   y:       24
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -641,6 +655,7 @@ cst816s_get_touch_data:   y:       24
 bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
 bl602_expander_interrupt: Call callback=0x2305e596, arg=0x42020a70
 cst816s_poll_notify:
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -654,6 +669,7 @@ cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
 cst816s_get_touch_data:   x:       118
 cst816s_get_touch_data:   y:       141
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -667,6 +683,7 @@ cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   19
 cst816s_get_touch_data:   x:       118
 cst816s_get_touch_data:   y:       141
+
 cst816s_get_touch_data:
 cst816s_i2c_read:
 bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
@@ -679,6 +696,135 @@ cst816s_get_touch_data:   id:      0
 cst816s_get_touch_data:   flags:   0c
 cst816s_get_touch_data:   x:       118
 cst816s_get_touch_data:   y:       141
+
+tp_cal result
+offset x:23, y:24
+range x:194, y:198
+invert x/y:1, x:0, y:1
+```
+
+Let's break down the log...
+
+## Enable GPIO Interrupt
+
+TODO
+
+```text
+gpio_pin_register: Registering /dev/gpio0
+gpio_pin_register: Registering /dev/gpio1
+gpint_enable: Disable the interrupt
+gpio_pin_register: Registering /dev/gpio2
+bl602_gpio_set_intmod: ****gpio_pin=115, int_ctlmod=1, int_trgmod=0
+spi_test_driver_register: devpath=/dev/spitest0, spidev=0
+cst816s_register: path=/dev/input0, addr=21
+bl602_expander_set_intmod: gpio_pin=9, int_ctlmod=1, int_trgmod=0
+bl602_irq_attach: Attach 0x2305e596
+bl602_irq_enable: Disable interrupt
+cst816s_register: Driver registered
+bl602_irq_enable: Enable interrupt
+
+NuttShell (NSH) NuttX-10.2.0-RC0
+nsh>
+```
+
+## Start LVGL App
+
+TODO
+
+```text
+nsh> lvgltest
+tp_init: Opening /dev/input0
+cst816s_open:
+```
+
+## Trigger GPIO Interrupt
+
+TODO
+
+```text
+bl602_expander_interrupt: Interrupt! callback=0x2305e596, arg=0x42020a70
+bl602_expander_interrupt: Call callback=0x2305e596, arg=0x42020a70
+cst816s_poll_notify:
+```
+
+## Touch Down Event
+
+TODO
+
+```text
+cst816s_get_touch_data:
+cst816s_i2c_read:
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c transfer success
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
+bl602_i2c_recvdata: count=3, temp=0x1700de
+ransfer success
+cst816s_get_touch_data: DOWN: id=0,touch=0, x=222, y=23
+cst816s_get_touch_data:   id:      0
+cst816s_get_touch_data:   flags:   19
+cst816s_get_touch_data:   x:       222
+cst816s_get_touch_data:   y:       23
+```
+
+## Touch Data Event Again
+
+TODO
+
+```text
+cst816s_get_touch_data:
+cst816s_i2c_read:
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c transfer success
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
+bl602_i2c_recvdata: count=3, temp=0x1700de
+ransfer success
+cst816s_get_touch_data: DOWN: id=0, ouch=0, x=222, y=23
+cst816s_get_touch_data:   id:      0
+cst816s_get_touch_data:   flags:   19
+cst816s_get_touch_data:   x:       222
+cst816s_get_touch_data:   y:       23
+
+cst816s_get_touch_data:
+cst816s_i2c_read:
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c transfer success
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c tbl602_i2c_recvdata: count=7, temp=0x500
+bl602_i2c_recvdata: count=3, temp=0x1700de
+ransfer success
+cst816s_get_touch_data: DOWN: id=0, touch=0, x=222, y=23
+cst816s_get_touch_data:   id:      0
+cst816s_get_touch_data:   flags:   19
+cst816s_get_touch_data:   x:       222
+cst816s_get_touch_data:   y:       23
+```
+
+## Touch Up Event
+
+TODO
+
+```text
+cst816s_get_touch_data:
+cst816s_i2c_read:
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c transfer success
+bl602_i2c_transfer: subflag=0, subaddr=0x0, sublen=0
+bl602_i2c_transfer: i2c transfer success
+cst816s_get_touch_data: Invalid touch data: id=9, touch=2, x=639, y=1688
+cst816s_get_touch_data: UP: id=0, touch=2, x=222, y=23
+cst816s_get_touch_data:   id:      0
+cst816s_get_touch_data:   flags:   0c
+cst816s_get_touch_data:   x:       222
+cst816s_get_touch_data:   y:       23
+```
+
+## Calibration Result
+
+TODO
+
+```text
 tp_cal result
 offset x:23, y:24
 range x:194, y:198
