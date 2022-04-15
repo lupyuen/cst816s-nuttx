@@ -486,6 +486,8 @@ PineDio Stack Touch Screen feels laggy on Apache #NuttX RTOS right now ... 2 thi
 
 -   [Watch the demo on YouTube](https://www.youtube.com/shorts/2Nzjrlp5lcE)
 
+(UPDATE: We have bumped up the SPI Frequency to max 40 MHz, still feels laggy)
+
 Here's the detailed log...
 
 ```text
@@ -1159,7 +1161,7 @@ cst816s_get_touch_data:   x:       200
 cst816s_get_touch_data:   y:       26
 ```
 
-LoRaWAN Test App `lorawan_test` also works OK with the patch.
+LoRaWAN Test App `lorawan_test` also tested OK with the patch.
 
 TODO: Investigate the internals of the [BL602 I2C Driver](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c). Look for I2C Timing Issues or Race Conditions.
 
@@ -1168,3 +1170,5 @@ TODO: Probe the I2C Bus with a Logic Analyser. Watch for I2C Hardware issues.
 TODO: Why must we disable logging? Eventually we must disable `CONFIG_DEBUG_INFO` (Informational Debug Output) because the LoRaWAN Test App `lorawan_test` doesn't work when `CONFIG_DEBUG_INFO` is enabled (due to LoRaWAN Timers)
 
 TODO: LoRaWAN Test App, LoRaWAN Library, SX1262 Library, NimBLE Porting Layer, SPI Test Driver should have their own flags for logging
+
+TODO: Move CST816S Interrupt Handler to [BL602 GPIO Expander](https://github.com/lupyuen/bl602_expander)
