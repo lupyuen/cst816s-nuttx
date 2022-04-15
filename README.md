@@ -737,11 +737,24 @@ tp_init: Opening /dev/input0
 cst816s_open:
 ```
 
-Which opens the CST816S Driver.
+Which opens the CST816S Driver and runs the Screen Calibration process.
 
-The app calls `read()` repeatedly on the CST816S Driver to get Touch Data.
+## Read Touch Data
 
-(But we really shouldn't do this. We ought to call `poll()` and block until Touch Data is available.)
+The LVGL Test App calls `read()` repeatedly on the CST816S Driver to get Touch Data...
+
+```c
+bool tp_read(struct _lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
+{
+  ...
+  /* Read one sample */
+
+  nbytes = read(fd, &sample, sizeof(struct touch_sample_s));
+```
+
+[(Source)](https://github.com/lupyuen/lvgltest-nuttx/blob/main/tp.c#L115-L132)
+
+(But we really shouldn't call `read()` repeatedly. We ought to call `poll()` and block until Touch Data is available.)
 
 ## Trigger GPIO Interrupt
 
