@@ -56,6 +56,17 @@ make menuconfig
 
 In menuconfig, enable the Hynitron CST816S Driver under "Device Drivers → Input Device Support".
 
+Enable I2C Warnings because of the [I2C Workaround for CST816S](https://github.com/lupyuen/cst816s-nuttx#i2c-logging)...
+
+-   Click `Build Setup` → `Debug Options`
+
+-   Check the boxes for the following...
+
+    ```text
+    Enable Warnings Output
+    I2C Warnings Output
+    ```
+
 Edit the function [`bl602_i2c_transfer`](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c#L671-L773) and patch this workaround...
 
 -   ["I2C Logging"](https://github.com/lupyuen/cst816s-nuttx#i2c-logging)
