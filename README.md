@@ -67,6 +67,9 @@ Enable I2C Warnings because of the [I2C Workaround for CST816S](https://github.c
     -   I2C Warnings Output
 
 -   (Optional) To enable logging for the CST816S Driver, check the boxes for...
+    -   Enable Error Output
+    -   Enable Informational Debug Output
+    -   Enable Debug Assertions
     -   Input Device Error Output
     -   Input Device Warnings Output
     -   Input Device Informational Output
