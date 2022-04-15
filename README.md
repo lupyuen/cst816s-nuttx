@@ -737,11 +737,13 @@ tp_init: Opening /dev/input0
 cst816s_open:
 ```
 
-Which opens our CST816S Driver and runs the Touchscreen Calibration process.
+Which calls [`cst816s_open()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L384-L420) to open our CST816S Driver.
+
+The app begins the Touchscreen Calibration process.
 
 ## Read Touch Data
 
-The LVGL Test App calls `read()` repeatedly on the CST816S Driver to get Touch Data...
+The LVGL Test App calls [`cst816s_read()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L328-L382) repeatedly on the CST816S Driver to get Touch Data...
 
 ```c
 bool tp_read(struct _lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
@@ -815,7 +817,7 @@ And calls [`cst816s_poll_notify()`](https://github.com/lupyuen/cst816s-nuttx/blo
 
 ## Touch Down Event
 
-Remember that the LVGL Test App keeps calling `read()` repeatedly.
+Remember that the LVGL Test App keeps calling [`cst816s_read()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L328-L382) repeatedly to get Touch Data.
 
 Now that `int_pending` is true, our driver proceeds to call [`cst816s_get_touch_data()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L222-L326) and fetch the Touch Data over I2C...
 
@@ -850,9 +852,15 @@ cst816s_get_touch_data:   x:       222
 cst816s_get_touch_data:   y:       23
 ```
 
-## Touch Data Event Again
+[`cst816s_get_touch_data()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L222-L326) sets `last_event` to 0 because it's a Touch Down Event.
 
-TODO
+[`cst816s_read()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L372-L382) sets `int_pending` to false.
+
+## Touch Down Event Again
+
+LVGL Test App is still calling [`cst816s_read()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L328-L382) repeatedly to get Touch Data.
+
+Now that `last_event` is 0 (Touch Down), our driver proceeds to call [`cst816s_get_touch_data()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L222-L326) and fetch the Touch Data over I2C...
 
 ```text
 cst816s_get_touch_data:
@@ -884,9 +892,11 @@ cst816s_get_touch_data:   x:       222
 cst816s_get_touch_data:   y:       23
 ```
 
+This happens twice because we haven't received a Touch Up Event.
+
 ## Touch Up Event
 
-TODO
+Finally [`cst816s_get_touch_data()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L222-L326) receives a Touch Up Event...
 
 ```text
 cst816s_get_touch_data:
@@ -903,9 +913,63 @@ cst816s_get_touch_data:   x:       222
 cst816s_get_touch_data:   y:       23
 ```
 
-## Calibration Result
+For Touch Up Events the Touch Coordinates are invalid...
 
-TODO
+```text
+cst816s_get_touch_data: Invalid touch data: id=9, touch=2, x=639, y=1688
+```
+
+The driver patches the Touch Coordinates with the data from the last Touch Down Event...
+
+```text
+cst816s_get_touch_data: UP: id=0, touch=2, x=222, y=23
+cst816s_get_touch_data:   id:      0
+cst816s_get_touch_data:   flags:   0c
+cst816s_get_touch_data:   x:       222
+cst816s_get_touch_data:   y:       23
+```
+
+And returns the valid coordinates to the LVGL Test App. The patching is done here...
+
+```c
+static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf) {
+...
+  /* If touch coordinates are invalid, return the last valid coordinates. */
+
+  bool valid = true;
+  if (x >= 240 || y >= 240) {
+    iwarn("Invalid touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
+    valid = false;
+    id = last_id;
+    x  = last_x;
+    y  = last_y;
+  }
+
+  /* Remember the last valid touch data. */
+
+  last_event = event;
+  last_id    = id;
+  last_x     = x;
+  last_y     = y;
+
+  /* Set the touch data fields. */
+
+  memset(&data, 0, sizeof(data));
+  data.npoints     = 1;
+  data.point[0].id = id;
+  data.point[0].x  = x;
+  data.point[0].y  = y;
+```
+
+[(Source)](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L258-L282)
+
+`last_event` is now set to 1 (Touch Up). 
+
+[`cst816s_read()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L328-L382) will no longer call [`cst816s_get_touch_data()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L222-L326) to fetch the Touch Data, until the screen is touched again.
+
+## Screen Calibration Result
+
+When we have touched the 4 screen corners, the LVGL Test App displays the Screen Calibration result...
 
 ```text
 tp_cal result
@@ -914,9 +978,11 @@ range x:194, y:198
 invert x/y:1, x:0, y:1
 ```
 
+Which will be used to tweak the Touch Coordinates in the apps.
+
 # Screen Is Sideways
 
-According to the touch data from `lvgltest`, our screen is rotated sideways...
+According to the Touch Data from the LVGL Test App, our screen is rotated sideways...
 
 -   Top Left: x=181, y=12
 
@@ -934,10 +1000,8 @@ https://twitter.com/MisterTechBlog/status/1514438646568415232
 
 # I2C Logging
 
-The driver won't return any valid touch data unless we enable I2C Logging. Sounds like a I2C timing issue.
+The driver won't return any valid Touch Data unless we enable I2C Logging. Sounds like an I2C timing issue or Race Condition.
 
-`lvgltest` reads the driver very often, which generates highly frequent I2C Reads for the touch data.
+This happens even after we have reduced the number of I2C Transfers (by checking GPIO Interrupts via `int_pending`).
 
-Maybe the driver should do an I2C Read of the touch data only upon GPIO Interrupt. And cache the touch data until the next GPIO Interrupt.
-
-TODO
+TODO: Investigate the internals of the BL602 I2C Driver
