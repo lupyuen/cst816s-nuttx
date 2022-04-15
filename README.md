@@ -1152,6 +1152,8 @@ cst816s_get_touch_data:   x:       200
 cst816s_get_touch_data:   y:       26
 ```
 
+LoRaWAN Test App `lorawan_test` also works OK with the patch.
+
 TODO: Investigate the internals of the [BL602 I2C Driver](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c). Look for I2C Timing Issues or Race Conditions.
 
 TODO: Probe the I2C Bus with a Logic Analyser. Watch for I2C Hardware issues.
