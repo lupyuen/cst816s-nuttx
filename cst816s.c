@@ -258,13 +258,19 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   /* If touch coordinates are invalid, return the last valid coordinates. */
 
   bool valid = true;
-  if (x >= 240 || y >= 240) {
-    iwarn("Invalid touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
-    valid = false;
-    id = last_id;
-    x  = last_x;
-    y  = last_y;
-  }
+  if (x >= 240 || y >= 240)
+    {
+      iwarn("Invalid touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
+      if (last_event == 0xff)  /* Quit if we have no last valid coordinates. */
+        {
+          ierr("Can't return touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
+          return -EINVAL;
+        }
+      valid = false;
+      id = last_id;
+      x  = last_x;
+      y  = last_y;
+    }
 
   /* Remember the last valid touch data. */
 

@@ -367,13 +367,19 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
   /* If touch coordinates are invalid, return the last valid coordinates. */
 
   bool valid = true;
-  if (x >= 240 || y >= 240) {
-    iwarn("Invalid touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
-    valid = false;
-    id = last_id;
-    x  = last_x;
-    y  = last_y;
-  }
+  if (x >= 240 || y >= 240)
+    {
+      iwarn("Invalid touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
+      if (last_event == 0xff)  /* Quit if we have no last valid coordinates. */
+        {
+          ierr("Can't return touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
+          return -EINVAL;
+        }
+      valid = false;
+      id = last_id;
+      x  = last_x;
+      y  = last_y;
+    }
 
   /* Remember the last valid touch data. */
 
@@ -947,13 +953,19 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf) 
   /* If touch coordinates are invalid, return the last valid coordinates. */
 
   bool valid = true;
-  if (x >= 240 || y >= 240) {
-    iwarn("Invalid touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
-    valid = false;
-    id = last_id;
-    x  = last_x;
-    y  = last_y;
-  }
+  if (x >= 240 || y >= 240)
+    {
+      iwarn("Invalid touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
+      if (last_event == 0xff)  /* Quit if we have no last valid coordinates. */
+        {
+          ierr("Can't return touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
+          return -EINVAL;
+        }
+      valid = false;
+      id = last_id;
+      x  = last_x;
+      y  = last_y;
+    }
 
   /* Remember the last valid touch data. */
 
@@ -1038,25 +1050,12 @@ cst816s_get_touch_data:   x:       222
 cst816s_get_touch_data:   y:       23
 ```
 
-With I2C Logging Disabled: We get the Touch Up Event (with invalid Touch Data)...
+With I2C Logging Disabled: We only get the Touch Up Event (with invalid Touch Data)...
 
 ```text
 nsh> lvgltest
 tp_init: Opening /dev/input0
 cst816s_open:
-
-bl602_expander_interrupt: Interrupt! callback=0x2305e55e, arg=0x4202070
-bl602_expander_interrupt: Call callback=0x2305e55e, arg=0x42020a70
-cst816s_poll_notify:
-
-cst816s_get_touch_data:
-cst816s_i2c_read:
-cst816s_get_touch_data: Invalid touch data: id=9, touch=2, x=639, y=1688
-cst816s_get_touch_data: UP: id=255, touch=2, x=65535, y=65535
-cst816s_get_touch_data:   id:      255
-cst816s_get_touch_data:   flags:   0c
-cst816s_get_touch_data:   x:       -1
-cst816s_get_touch_data:   y:       -1
 
 bl602_expander_interrupt: Interrupt! callback=0x2305e55e, arg=0x42020a70
 bl602_expander_interrupt: Call callback=0x2305e55e, arg=0x42020a70
@@ -1065,14 +1064,19 @@ cst816s_poll_notify:
 cst816s_get_touch_data:
 cst816s_i2c_read:
 cst816s_get_touch_data: Invalid touch data: id=9, touch=2, x=639, y=1688
-cst816s_get_touch_data: UP: id=255, touch=2, x=65535, y=65535
-cst816s_get_touch_data:   id:      255
-cst816s_get_touch_data:   flags:   0c
-cst816s_get_touch_data:   x:       -1
-cst816s_get_touch_data:   y:       -1
+cst816s_get_touch_data: Can't return touch data: id=9, touch=2, x=639, y=1688
+
+bl602_expander_interrupt: Interrupt! callback=0x2305e55e, arg=0x42020a70
+bl602_expander_interrupt: Call callback=0x2305e55e, arg=0x42020a70
+cst816s_poll_notify:
+
+cst816s_get_touch_data:
+cst816s_i2c_read:
+cst816s_get_touch_data: Invalid touch data: id=9, touch=2, x=639, y=1688
+cst816s_get_touch_data: Can't return touch data: id=9, touch=2, x=639, y=1688
 ```
 
-This happens even after we have reduced the number of I2C Transfers (by checking GPIO Interrupts via `int_pending`).
+This happens before and after we have reduced the number of I2C Transfers (by checking GPIO Interrupts via `int_pending`).
 
 TODO: Investigate the internals of the [BL602 I2C Driver](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c)
 
@@ -1082,6 +1086,6 @@ TODO: Maybe call `i2cwarn()` for now to work around the issue
 
 TODO: Probe the I2C Bus with a Logic Analyser
 
-TODO: Eventually we must disable `CONFIG_DEBUG_INFO` because the LoRaWAN Test App `lorawan_test` doesn't work when `CONFIG_DEBUG_INFO` is enabled (due to LoRaWAN Timers)
+TODO: Why must we disable logging? Eventually we must disable `CONFIG_DEBUG_INFO` because the LoRaWAN Test App `lorawan_test` doesn't work when `CONFIG_DEBUG_INFO` is enabled (due to LoRaWAN Timers)
 
 TODO: LoRaWAN Test App, LoRaWAN Library, SX1262 Library, NimBLE Porting Layer, SPI Test Driver should have their own flags for logging
