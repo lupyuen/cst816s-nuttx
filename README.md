@@ -934,7 +934,7 @@ This happens twice because we haven't received a Touch Up Event.
 
 ## Touch Up Event
 
-Finally [`cst816s_get_touch_data()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L222-L326) receives a Touch Up Event...
+When our finger is no longer touching the screen, [`cst816s_get_touch_data()`](https://github.com/lupyuen/cst816s-nuttx/blob/main/cst816s.c#L222-L326) receives a Touch Up Event...
 
 ```text
 cst816s_get_touch_data:
