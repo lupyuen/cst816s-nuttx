@@ -71,7 +71,7 @@ Enable I2C Warnings because of the [I2C Workaround for CST816S](https://github.c
     -   Input Device Warnings Output
     -   Input Device Informational Output
 
--   Note that "Enable Informational Debug Output" must be unchecked for the LoRaWAN Test App to work (because the LoRaWAN Timers are time-sensitive)
+-   Note that "Enable Informational Debug Output" must be unchecked for the LoRaWAN Test App `lorawan_test` to work (because the LoRaWAN Timers are time-sensitive)
 
 Edit the function [`bl602_i2c_transfer`](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c#L671-L773) and apply this workaround patch...
 
