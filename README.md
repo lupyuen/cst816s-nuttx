@@ -445,6 +445,18 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 
 Note that our NuttX Driver for PineDio Stack's Touch Panel returns 4 possible states: Touch Down vs Touch Up, Valid vs Invalid.
 
+We got this code thanks to JF's CST816S driver for the Self-Test Firmware...
+
+-   [pinedio-stack-selftest/drivers/cst816s.c](https://codeberg.org/JF002/pinedio-stack-selftest/src/branch/master/drivers/cst816s.c)
+
+And from our previous work on PineTime, which also uses CST816S...
+
+-   ["Building a Rust Driver for PineTime’s Touch Controller"](https://lupyuen.github.io/articles/building-a-rust-driver-for-pinetimes-touch-controller)
+
+-   [CST816S Driver in Rust](https://github.com/lupyuen/stm32bluepill-mynewt-sensor/blob/pinetime/rust/app/src/touch_sensor.rs)
+
+-   [Hynitron Reference Driver](https://github.com/lupyuen/hynitron_i2c_cst0xxse/blob/master/cst0xx_core.c#L407-L466)
+
 # Test Touch Data
 
 NuttX Driver for PineDio Stack Touch Panel responds correctly to touch! 🎉
