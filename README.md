@@ -1114,10 +1114,32 @@ static int bl602_i2c_transfer(struct i2c_master_s *dev,
 
 [(Source)](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c#L753-L761)
 
+After patching the workaround, we get the Touch Down Event (with valid Touch Data)...
+
+```text
+nsh> lvgltest
+tp_init: Opening /dev/input0
+cst816s_open:
+
+bl602_expander_interrupt: Interrupt! callback=0x2305e55e, arg=0x42020a70
+bl602_expander_interrupt: Call callback=0x2305e55e, arg=0x42020a70
+cst816s_poll_notify:
+
+cst816s_get_touch_data:
+cst816s_i2c_read:
+bl602_i2c_transfer: i2c transfer success
+bl602_i2c_transfer: i2c transfer success
+cst816s_get_touch_data: DOWN: id=0, touch=0, x=200, y=26
+cst816s_get_touch_data:   id:      0
+cst816s_get_touch_data:   flags:   19
+cst816s_get_touch_data:   x:       200
+cst816s_get_touch_data:   y:       26
+```
+
 TODO: Investigate the internals of the [BL602 I2C Driver](https://github.com/lupyuen/incubator-nuttx/blob/touch/arch/risc-v/src/bl602/bl602_i2c.c). Look for I2C Timing Issues or Race Conditions.
 
 TODO: Probe the I2C Bus with a Logic Analyser. Watch for I2C Hardware issues.
 
-TODO: Why must we disable logging? Eventually we must disable `CONFIG_DEBUG_INFO` because the LoRaWAN Test App `lorawan_test` doesn't work when `CONFIG_DEBUG_INFO` is enabled (due to LoRaWAN Timers)
+TODO: Why must we disable logging? Eventually we must disable `CONFIG_DEBUG_INFO` (Informational Debug Output) because the LoRaWAN Test App `lorawan_test` doesn't work when `CONFIG_DEBUG_INFO` is enabled (due to LoRaWAN Timers)
 
 TODO: LoRaWAN Test App, LoRaWAN Library, SX1262 Library, NimBLE Porting Layer, SPI Test Driver should have their own flags for logging
