@@ -1175,3 +1175,5 @@ TODO: Why must we disable logging? Eventually we must disable `CONFIG_DEBUG_INFO
 TODO: LoRaWAN Test App, LoRaWAN Library, SX1262 Library, NimBLE Porting Layer, SPI Test Driver should have their own flags for logging
 
 TODO: Move CST816S Interrupt Handler to [BL602 GPIO Expander](https://github.com/lupyuen/bl602_expander)
+
+TODO: Add a button and a message box to the [LVGL Test App `lvgltest`](https://github.com/lupyuen/lvgltest-nuttx/blob/main/lvgltest.c#L110-L198) to demo the touchscreen
