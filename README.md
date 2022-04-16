@@ -1178,4 +1178,4 @@ __TODO:__ Move CST816S Interrupt Handler to [BL602 GPIO Expander](https://github
 
 __TODO:__ Implement SPI DMA on NuttX so that the touchscreen feels less laggy
 
-__TODO:__ Add a button and a message box to the [LVGL Test App `lvgltest`](https://github.com/lupyuen/lvgltest-nuttx/blob/main/lvgltest.c#L110-L198) to demo the touchscreen
+__TODO:__ [Add a button](https://docs.lvgl.io/7.11/get-started/quick-overview.html#button-with-label) and a message box to the [LVGL Test App `lvgltest`](https://github.com/lupyuen/lvgltest-nuttx/blob/main/lvgltest.c#L110-L198) to demo the touchscreen
