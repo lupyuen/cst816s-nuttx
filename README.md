@@ -2,11 +2,13 @@
 
 [(Used by PineDio Stack BL604)](https://lupyuen.github.io/articles/pinedio2)
 
-See https://lupyuen.github.io/articles/pinedio2#touch-panel
+Read the article...
 
-[__Watch the demo on YouTube__](https://www.youtube.com/shorts/2Nzjrlp5lcE)
+-   ["NuttX Touch Panel Driver for PineDio Stack BL604"](https://lupyuen.github.io/articles/touch)
 
-[__Follow the updates on Twitter__](https://twitter.com/MisterTechBlog/status/1514049092388745219)
+Watch the demo...
+
+-   [PineDio Stack Demo on YouTube](https://www.youtube.com/shorts/2Nzjrlp5lcE)
 
 # Install Driver
 
