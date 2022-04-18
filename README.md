@@ -1,3 +1,5 @@
+![Touch Panel Calibration for Pine64 PineDio Stack BL604 RISC-V Board](https://lupyuen.github.io/images/touch-title.jpg)
+
 # Hynitron CST816S Touch Controller Driver for Apache NuttX RTOS
 
 [(Used by PineDio Stack BL604)](https://lupyuen.github.io/articles/pinedio2)
