@@ -409,9 +409,12 @@ static int cst816s_open(FAR struct file *filep)
   DEBUGASSERT(inode && inode->i_private);
   priv = inode->i_private;
 
+  /* Wait for semaphore */
+
   ret = nxsem_wait_uninterruptible(&priv->devsem);
   if (ret < 0)
     {
+      ierr("Semaphore failed\n");
       return ret;
     }
 
@@ -421,6 +424,18 @@ static int cst816s_open(FAR struct file *filep)
   priv->cref = use_count;
   ret = 0;
 
+  /* Enable interrupt */
+  
+  ret = bl602_irq_enable(true);
+  if (ret < 0)
+    {
+      ierr("Enable interrupt failed\n");
+      goto out_sem;
+    }
+
+  /* Release semaphore */
+
+out_sem:
   nxsem_post(&priv->devsem);
   return ret;
 }
