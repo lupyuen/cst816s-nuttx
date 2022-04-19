@@ -14,7 +14,13 @@ Watch the demo...
 
 # Install Driver
 
-To add this repo to your NuttX project...
+If you're using NuttX on PineDio Stack, there's no need to install the driver...
+
+-   [lupyuen/incubator-nuttx (pinedio branch)](https://github.com/lupyuen/incubator-nuttx/tree/pinedio)
+
+-   [lupyuen/incubator-nuttx-apps (pinedio branch)](https://github.com/lupyuen/incubator-nuttx-apps/tree/pinedio)
+
+Otherwise to add this repo to your NuttX project...
 
 ```bash
 pushd nuttx/nuttx/drivers/input
