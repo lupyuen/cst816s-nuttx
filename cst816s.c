@@ -715,12 +715,6 @@ int cst816s_register(FAR const char *devpath,
 #include "../arch/risc-v/src/common/riscv_internal.h"
 #include "../arch/risc-v/src/bl602/bl602_gpio.h"
 
-static int bl602_expander_interrupt(int irq, void *context, void *arg);
-static void bl602_expander_intmask(uint8_t gpio_pin, int intmask);
-static void bl602_expander_set_intmod(uint8_t gpio_pin, uint8_t int_ctlmod, uint8_t int_trgmod);
-static int bl602_expander_get_intstatus(uint8_t gpio_pin);
-static void bl602_expander_intclear(uint8_t gpio_pin, uint8_t int_clear);
-
 static gpio_pinset_t bl602_expander_pinset = 0;
 static FAR isr_handler *bl602_expander_callback = NULL;
 static FAR void *bl602_expander_arg = NULL;
