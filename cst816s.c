@@ -39,6 +39,8 @@
 
 #include <nuttx/input/touchscreen.h>
 #include <nuttx/input/cst816s.h>
+#include <nuttx/ioexpander/gpio.h>
+#include <nuttx/ioexpander/bl602_expander.h>
 
 #include "../arch/risc-v/src/bl602/bl602_gpio.h"  ////  TODO
 #include "../boards/risc-v/bl602/bl602evb/include/board.h"  ////  TODO
@@ -65,10 +67,6 @@
 /****************************************************************************
  * Private Types
  ****************************************************************************/
-
-/* Interrupt Handler */
-
-typedef int isr_handler(int irq, FAR void *context, FAR void *arg);
 
 /* CST816S Device */
 
@@ -99,8 +97,6 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
                             size_t buflen);
 static int cst816s_poll(FAR struct file *filep, FAR struct pollfd *fds,
                         bool setup);
-static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR void *arg);
-static int bl602_irq_enable(bool enable);
 
 /****************************************************************************
  * Private Data
@@ -424,18 +420,8 @@ static int cst816s_open(FAR struct file *filep)
   priv->cref = use_count;
   ret = 0;
 
-  /* Enable interrupt */
-  
-  ret = bl602_irq_enable(true);
-  if (ret < 0)
-    {
-      ierr("Enable interrupt failed\n");
-      goto out_sem;
-    }
-
   /* Release semaphore */
 
-out_sem:
   nxsem_post(&priv->devsem);
   return ret;
 }
@@ -471,10 +457,6 @@ static int cst816s_close(FAR struct file *filep)
   use_count = priv->cref - 1;
   if (use_count == 0)
     {
-      /* Disable interrupt */
-
-      bl602_irq_enable(false);
-
       priv->debug_conf.debug_mode = false;
       priv->cref = use_count;
     }
@@ -616,7 +598,8 @@ out:
  *
  ****************************************************************************/
 
-static int cst816s_isr_handler(int _irq, FAR void *_context, FAR void *arg)
+static int cst816s_isr_handler(FAR struct ioexpander_dev_s *dev,
+                               ioe_pinset_t pinset, FAR void *arg)
 {
   FAR struct cst816s_dev_s *priv = (FAR struct cst816s_dev_s *)arg;
   irqstate_t flags;
@@ -648,7 +631,9 @@ int cst816s_register(FAR const char *devpath,
                      uint8_t i2c_devaddr)
 {
   iinfo("path=%s, addr=%d\n", devpath, i2c_devaddr); ////
+  uint8_t gpio_pin = (BOARD_TOUCH_INT & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
   struct cst816s_dev_s *priv;
+  void *handle;
   int ret = 0;
 
   /* Allocate device private structure. */
@@ -675,49 +660,20 @@ int cst816s_register(FAR const char *devpath,
       return ret;
     }
 
-  /* Prepare interrupt line and handler. */
+  /* Attach GPIO interrupt handler. */
 
-  ret = bl602_irq_attach(BOARD_TOUCH_INT, cst816s_isr_handler, priv);
-  if (ret < 0)
+  DEBUGASSERT(bl602_expander != NULL);
+  handle = IOEP_ATTACH(bl602_expander,
+                       gpio_pin,
+                       cst816s_isr_handler,
+                       priv);
+  if (handle == NULL)
     {
       kmm_free(priv);
       ierr("Attach interrupt failed\n");
       return ret;
     }
 
-  ret = bl602_irq_enable(false);
-  if (ret < 0)
-    {
-      kmm_free(priv);
-      ierr("Disable interrupt failed\n");
-      return ret;
-    }
-
   iinfo("Driver registered\n");
-
-//  Uncomment this to test interrupts (tap the screen)
-#define TEST_CST816S_INTERRUPT
-#ifdef TEST_CST816S_INTERRUPT
-#warning Testing CST816S interrupt
-  bl602_irq_enable(true);
-#endif /* TEST_CST816S_INTERRUPT */
-
   return 0;
 }
-
-/****************************************************************************
- * BL602 GPIO Interrupt. TODO: Move this to BL602 GPIO Expander
- * https://github.com/lupyuen/bl602_expander
- ****************************************************************************/
-
-#include <nuttx/ioexpander/gpio.h>
-#include <arch/board/board.h>
-#include "../arch/risc-v/src/common/riscv_internal.h"
-#include "../arch/risc-v/src/bl602/bl602_gpio.h"
-
-static gpio_pinset_t bl602_expander_pinset = 0;
-static FAR isr_handler *bl602_expander_callback = NULL;
-static FAR void *bl602_expander_arg = NULL;
-
-//  struct ioexpander_dev_s;
-//  typedef CODE int (*ioe_callback_t)(FAR struct ioexpander_dev_s *dev, ioe_pinset_t pinset, FAR void *arg);
