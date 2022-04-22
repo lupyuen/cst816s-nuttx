@@ -664,7 +664,7 @@ int cst816s_register(FAR const char *devpath,
 
   DEBUGASSERT(bl602_expander != NULL);
   handle = IOEP_ATTACH(bl602_expander,
-                       gpio_pin,
+                       (ioe_pinset_t)1 << gpio_pin,
                        cst816s_isr_handler,
                        priv);
   if (handle == NULL)
