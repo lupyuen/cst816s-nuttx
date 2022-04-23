@@ -660,9 +660,14 @@ int cst816s_register(FAR const char *devpath,
       return ret;
     }
 
-  /* Attach GPIO interrupt handler. */
+  /* Configure GPIO interrupt to be triggered on falling edge. */
 
   DEBUGASSERT(bl602_expander != NULL);
+  IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
+                  (FAR void *)IOEXPANDER_VAL_FALLING);
+
+  /* Attach GPIO interrupt handler. */
+
   handle = IOEP_ATTACH(bl602_expander,
                        (ioe_pinset_t)1 << gpio_pin,
                        cst816s_isr_handler,
