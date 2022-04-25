@@ -674,7 +674,7 @@ int cst816s_register(FAR const char *devpath,
     {
       kmm_free(priv);
       ierr("Attach interrupt failed\n");
-      return ret;
+      return -EIO;
     }
 
   iinfo("Driver registered\n");
