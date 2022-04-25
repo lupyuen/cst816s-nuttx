@@ -42,14 +42,14 @@
 #include <nuttx/ioexpander/gpio.h>
 #include <nuttx/ioexpander/bl602_expander.h>
 
-#include "../arch/risc-v/src/bl602/bl602_gpio.h"  ////  TODO
-#include "../boards/risc-v/bl602/bl602evb/include/board.h"  ////  TODO
+#include "../arch/risc-v/src/bl602/bl602_gpio.h"
+#include "../boards/risc-v/bl602/bl602evb/include/board.h"
 
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
 
-#define CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS 10  ////  TODO
+#define CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS 10
 
 /* CST816S Registers for Touch Data and Chip ID */
 
@@ -140,7 +140,8 @@ static uint16_t last_y     = 0xffff;
 static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
                             uint8_t *buf, size_t buflen)
 {
-  iinfo("\n"); ////
+  int ret = -EIO;
+  int retries;
   struct i2c_msg_s msgv[2] =
   {
     {
@@ -163,14 +164,12 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
     }
   };
 
-  int ret = -EIO;
-  int retries;
-
   /* CST816S will respond with NACK to address when in low-power mode. Host
    * needs to retry address selection multiple times to get CST816S to
    * wake-up.
    */
 
+  iinfo("\n");
   for (retries = 0; retries < CST816S_I2C_RETRIES; retries++)
     {
       ret = I2C_TRANSFER(dev->i2c, msgv, 2);
@@ -180,7 +179,7 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
            * Keep trying.
            */
 
-          iwarn("I2C NACK\n"); ////
+          iwarn("I2C NACK\n");
           continue;
         }
       else if (ret >= 0)
@@ -193,7 +192,7 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
         {
           /* Some other error. Try to reset I2C bus and keep trying. */
 
-          iwarn("I2C error\n"); ////
+          iwarn("I2C error\n");
 #ifdef CONFIG_I2C_RESET
           if (retries == CST816S_I2C_RETRIES - 1)
             {
@@ -225,13 +224,13 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
 
 static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 {
-  iinfo("\n"); ////
   struct touch_sample_s data;
   uint8_t readbuf[7];
   int ret;
 
   /* Read the raw touch data. */
 
+  iinfo("\n");
   ret = cst816s_i2c_read(dev, CST816S_REG_TOUCHDATA, readbuf, sizeof(readbuf));
   if (ret < 0)
     {
@@ -338,7 +337,6 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
                             size_t buflen)
 {
-  //  iinfo("\n"); ////
   FAR struct inode *inode;
   FAR struct cst816s_dev_s *priv;
   size_t outlen;
@@ -393,12 +391,12 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
 
 static int cst816s_open(FAR struct file *filep)
 {
-  iinfo("\n"); ////
   FAR struct inode *inode;
   FAR struct cst816s_dev_s *priv;
   unsigned int use_count;
   int ret;
 
+  iinfo("\n");
   DEBUGASSERT(filep);
   inode = filep->f_inode;
 
@@ -436,12 +434,12 @@ static int cst816s_open(FAR struct file *filep)
 
 static int cst816s_close(FAR struct file *filep)
 {
-  iinfo("\n"); ////
   FAR struct inode *inode;
   FAR struct cst816s_dev_s *priv;
   int use_count;
   int ret;
 
+  iinfo("\n");
   DEBUGASSERT(filep);
   inode = filep->f_inode;
 
@@ -482,9 +480,9 @@ static int cst816s_close(FAR struct file *filep)
 
 static void cst816s_poll_notify(FAR struct cst816s_dev_s *priv)
 {
-  iinfo("\n"); ////
   int i;
 
+  iinfo("\n");
   DEBUGASSERT(priv != NULL);
 
   for (i = 0; i < CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS; i++)
@@ -511,13 +509,13 @@ static void cst816s_poll_notify(FAR struct cst816s_dev_s *priv)
 static int cst816s_poll(FAR struct file *filep, FAR struct pollfd *fds,
                         bool setup)
 {
-  iinfo("\n"); ////
   FAR struct cst816s_dev_s *priv;
   FAR struct inode *inode;
   bool pending;
   int ret = 0;
   int i;
 
+  iinfo("\n");
   DEBUGASSERT(filep && fds);
   inode = filep->f_inode;
 
@@ -630,7 +628,6 @@ int cst816s_register(FAR const char *devpath,
                      FAR struct i2c_master_s *i2c_dev,
                      uint8_t i2c_devaddr)
 {
-  iinfo("path=%s, addr=%d\n", devpath, i2c_devaddr); ////
   uint8_t gpio_pin = (BOARD_TOUCH_INT & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
   struct cst816s_dev_s *priv;
   void *handle;
@@ -638,6 +635,7 @@ int cst816s_register(FAR const char *devpath,
 
   /* Allocate device private structure. */
 
+  iinfo("path=%s, addr=%d\n", devpath, i2c_devaddr);
   priv = kmm_zalloc(sizeof(struct cst816s_dev_s));
   if (!priv)
     {
