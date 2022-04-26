@@ -39,15 +39,17 @@
 
 #include <nuttx/input/touchscreen.h>
 #include <nuttx/input/cst816s.h>
+#include <nuttx/ioexpander/gpio.h>
+#include <nuttx/ioexpander/bl602_expander.h>
 
-#include "../arch/risc-v/src/bl602/bl602_gpio.h"  ////  TODO
-#include "../boards/risc-v/bl602/bl602evb/include/board.h"  ////  TODO
+#include "../arch/risc-v/src/bl602/bl602_gpio.h"
+#include "../boards/risc-v/bl602/bl602evb/include/board.h"
 
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
 
-#define CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS 10  ////  TODO
+#define CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS 10
 
 /* CST816S Registers for Touch Data and Chip ID */
 
@@ -65,10 +67,6 @@
 /****************************************************************************
  * Private Types
  ****************************************************************************/
-
-/* Interrupt Handler */
-
-typedef int isr_handler(int irq, FAR void *context, FAR void *arg);
 
 /* CST816S Device */
 
@@ -99,8 +97,6 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
                             size_t buflen);
 static int cst816s_poll(FAR struct file *filep, FAR struct pollfd *fds,
                         bool setup);
-static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR void *arg);
-static int bl602_irq_enable(bool enable);
 
 /****************************************************************************
  * Private Data
@@ -144,7 +140,8 @@ static uint16_t last_y     = 0xffff;
 static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
                             uint8_t *buf, size_t buflen)
 {
-  iinfo("\n"); ////
+  int ret = -EIO;
+  int retries;
   struct i2c_msg_s msgv[2] =
   {
     {
@@ -167,14 +164,12 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
     }
   };
 
-  int ret = -EIO;
-  int retries;
-
   /* CST816S will respond with NACK to address when in low-power mode. Host
    * needs to retry address selection multiple times to get CST816S to
    * wake-up.
    */
 
+  iinfo("\n");
   for (retries = 0; retries < CST816S_I2C_RETRIES; retries++)
     {
       ret = I2C_TRANSFER(dev->i2c, msgv, 2);
@@ -184,7 +179,7 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
            * Keep trying.
            */
 
-          iwarn("I2C NACK\n"); ////
+          iwarn("I2C NACK\n");
           continue;
         }
       else if (ret >= 0)
@@ -197,7 +192,7 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
         {
           /* Some other error. Try to reset I2C bus and keep trying. */
 
-          iwarn("I2C error\n"); ////
+          iwarn("I2C error\n");
 #ifdef CONFIG_I2C_RESET
           if (retries == CST816S_I2C_RETRIES - 1)
             {
@@ -229,13 +224,13 @@ static int cst816s_i2c_read(FAR struct cst816s_dev_s *dev, uint8_t reg,
 
 static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 {
-  iinfo("\n"); ////
   struct touch_sample_s data;
   uint8_t readbuf[7];
   int ret;
 
   /* Read the raw touch data. */
 
+  iinfo("\n");
   ret = cst816s_i2c_read(dev, CST816S_REG_TOUCHDATA, readbuf, sizeof(readbuf));
   if (ret < 0)
     {
@@ -342,7 +337,6 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
 static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
                             size_t buflen)
 {
-  //  iinfo("\n"); ////
   FAR struct inode *inode;
   FAR struct cst816s_dev_s *priv;
   size_t outlen;
@@ -397,12 +391,12 @@ static ssize_t cst816s_read(FAR struct file *filep, FAR char *buffer,
 
 static int cst816s_open(FAR struct file *filep)
 {
-  iinfo("\n"); ////
   FAR struct inode *inode;
   FAR struct cst816s_dev_s *priv;
   unsigned int use_count;
   int ret;
 
+  iinfo("\n");
   DEBUGASSERT(filep);
   inode = filep->f_inode;
 
@@ -424,18 +418,8 @@ static int cst816s_open(FAR struct file *filep)
   priv->cref = use_count;
   ret = 0;
 
-  /* Enable interrupt */
-  
-  ret = bl602_irq_enable(true);
-  if (ret < 0)
-    {
-      ierr("Enable interrupt failed\n");
-      goto out_sem;
-    }
-
   /* Release semaphore */
 
-out_sem:
   nxsem_post(&priv->devsem);
   return ret;
 }
@@ -450,12 +434,12 @@ out_sem:
 
 static int cst816s_close(FAR struct file *filep)
 {
-  iinfo("\n"); ////
   FAR struct inode *inode;
   FAR struct cst816s_dev_s *priv;
   int use_count;
   int ret;
 
+  iinfo("\n");
   DEBUGASSERT(filep);
   inode = filep->f_inode;
 
@@ -471,10 +455,6 @@ static int cst816s_close(FAR struct file *filep)
   use_count = priv->cref - 1;
   if (use_count == 0)
     {
-      /* Disable interrupt */
-
-      bl602_irq_enable(false);
-
       priv->debug_conf.debug_mode = false;
       priv->cref = use_count;
     }
@@ -500,9 +480,9 @@ static int cst816s_close(FAR struct file *filep)
 
 static void cst816s_poll_notify(FAR struct cst816s_dev_s *priv)
 {
-  iinfo("\n"); ////
   int i;
 
+  iinfo("\n");
   DEBUGASSERT(priv != NULL);
 
   for (i = 0; i < CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS; i++)
@@ -529,13 +509,13 @@ static void cst816s_poll_notify(FAR struct cst816s_dev_s *priv)
 static int cst816s_poll(FAR struct file *filep, FAR struct pollfd *fds,
                         bool setup)
 {
-  iinfo("\n"); ////
   FAR struct cst816s_dev_s *priv;
   FAR struct inode *inode;
   bool pending;
   int ret = 0;
   int i;
 
+  iinfo("\n");
   DEBUGASSERT(filep && fds);
   inode = filep->f_inode;
 
@@ -616,7 +596,8 @@ out:
  *
  ****************************************************************************/
 
-static int cst816s_isr_handler(int _irq, FAR void *_context, FAR void *arg)
+static int cst816s_isr_handler(FAR struct ioexpander_dev_s *dev,
+                               ioe_pinset_t pinset, FAR void *arg)
 {
   FAR struct cst816s_dev_s *priv = (FAR struct cst816s_dev_s *)arg;
   irqstate_t flags;
@@ -647,12 +628,14 @@ int cst816s_register(FAR const char *devpath,
                      FAR struct i2c_master_s *i2c_dev,
                      uint8_t i2c_devaddr)
 {
-  iinfo("path=%s, addr=%d\n", devpath, i2c_devaddr); ////
+  uint8_t gpio_pin = (BOARD_TOUCH_INT & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
   struct cst816s_dev_s *priv;
+  void *handle;
   int ret = 0;
 
   /* Allocate device private structure. */
 
+  iinfo("path=%s, addr=%d\n", devpath, i2c_devaddr);
   priv = kmm_zalloc(sizeof(struct cst816s_dev_s));
   if (!priv)
     {
@@ -675,317 +658,25 @@ int cst816s_register(FAR const char *devpath,
       return ret;
     }
 
-  /* Prepare interrupt line and handler. */
+  /* Configure GPIO interrupt to be triggered on falling edge. */
 
-  ret = bl602_irq_attach(BOARD_TOUCH_INT, cst816s_isr_handler, priv);
-  if (ret < 0)
+  DEBUGASSERT(bl602_expander != NULL);
+  IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
+                  (FAR void *)IOEXPANDER_VAL_FALLING);
+
+  /* Attach GPIO interrupt handler. */
+
+  handle = IOEP_ATTACH(bl602_expander,
+                       (ioe_pinset_t)1 << gpio_pin,
+                       cst816s_isr_handler,
+                       priv);
+  if (handle == NULL)
     {
       kmm_free(priv);
       ierr("Attach interrupt failed\n");
-      return ret;
-    }
-
-  ret = bl602_irq_enable(false);
-  if (ret < 0)
-    {
-      kmm_free(priv);
-      ierr("Disable interrupt failed\n");
-      return ret;
+      return -EIO;
     }
 
   iinfo("Driver registered\n");
-
-//  Uncomment this to test interrupts (tap the screen)
-#define TEST_CST816S_INTERRUPT
-#ifdef TEST_CST816S_INTERRUPT
-#warning Testing CST816S interrupt
-  bl602_irq_enable(true);
-#endif /* TEST_CST816S_INTERRUPT */
-
   return 0;
-}
-
-/****************************************************************************
- * BL602 GPIO Interrupt. TODO: Move this to BL602 GPIO Expander
- * https://github.com/lupyuen/bl602_expander
- ****************************************************************************/
-
-#include <nuttx/ioexpander/gpio.h>
-#include <arch/board/board.h>
-#include "../arch/risc-v/src/common/riscv_internal.h"
-#include "../arch/risc-v/src/bl602/bl602_gpio.h"
-
-static int bl602_expander_interrupt(int irq, void *context, void *arg);
-static void bl602_expander_intmask(uint8_t gpio_pin, int intmask);
-static void bl602_expander_set_intmod(uint8_t gpio_pin, uint8_t int_ctlmod, uint8_t int_trgmod);
-static int bl602_expander_get_intstatus(uint8_t gpio_pin);
-static void bl602_expander_intclear(uint8_t gpio_pin, uint8_t int_clear);
-
-static gpio_pinset_t bl602_expander_pinset = 0;
-static FAR isr_handler *bl602_expander_callback = NULL;
-static FAR void *bl602_expander_arg = NULL;
-
-//  struct ioexpander_dev_s;
-//  typedef CODE int (*ioe_callback_t)(FAR struct ioexpander_dev_s *dev, ioe_pinset_t pinset, FAR void *arg);
-
-/****************************************************************************
- * Name: bl602_irq_attach
- *
- * Description:
- *   Attach Interrupt Handler to GPIO Interrupt for Touch Controller.
- *   Based on https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L477-L505 
- *
- ****************************************************************************/
-
-static int bl602_irq_attach(gpio_pinset_t pinset, FAR isr_handler *callback, FAR void *arg)
-{
-  int ret = 0;
-  uint8_t gpio_pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
-  FAR struct bl602_gpint_dev_s *dev = NULL;  //  TODO
-
-  DEBUGASSERT(callback != NULL);
-
-  /* Configure the pin that will be used as interrupt input */
-
-  #warning Check GLB_GPIO_INT_TRIG_NEG_PULSE  ////  TODO
-  bl602_expander_set_intmod(gpio_pin, 1, GLB_GPIO_INT_TRIG_NEG_PULSE);
-  ret = bl602_configgpio(pinset);
-  if (ret < 0)
-    {
-      gpioerr("Failed to configure GPIO pin %d\n", gpio_pin);
-      return ret;
-    }
-
-  /* Make sure the interrupt is disabled */
-
-  bl602_expander_pinset = pinset;
-  bl602_expander_callback = callback;
-  bl602_expander_arg = arg;
-  bl602_expander_intmask(gpio_pin, 1);
-
-  irq_attach(BL602_IRQ_GPIO_INT0, bl602_expander_interrupt, dev);
-  bl602_expander_intmask(gpio_pin, 0);
-
-  gpioinfo("Attach %p\n", callback);
-
-  return 0;
-}
-
-/****************************************************************************
- * Name: bl602_irq_enable
- *
- * Description:
- *   Enable or disable GPIO Interrupt for Touch Controller.
- *   Based on https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L507-L535
- *
- ****************************************************************************/
-
-static int bl602_irq_enable(bool enable)
-{
-  if (enable)
-    {
-      if (bl602_expander_callback != NULL)
-        {
-          gpioinfo("Enable interrupt\n");
-          up_enable_irq(BL602_IRQ_GPIO_INT0);
-        }
-      else
-        {
-          gpiowarn("No callback attached\n");
-        }
-    }
-  else
-    {
-      gpioinfo("Disable interrupt\n");
-      up_disable_irq(BL602_IRQ_GPIO_INT0);
-    }
-
-  return 0;
-}
-
-/****************************************************************************
- * Name: bl602_expander_interrupt
- *
- * Description:
- *   Handle GPIO Interrupt. Based on
- *   https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L256-L304
- *
- ****************************************************************************/
-
-static int bl602_expander_interrupt(int irq, void *context, void *arg)
-{
-  ////TODO: FAR struct bl602_gpint_dev_s *dev = (FAR struct bl602_gpint_dev_s *)arg;
-  uint32_t time_out = 0;
-  uint8_t gpio_pin;
-
-  ////TODO: DEBUGASSERT(dev != NULL);
-  DEBUGASSERT(bl602_expander_callback != NULL);
-  gpioinfo("Interrupt! callback=%p, arg=%p\n", bl602_expander_callback, bl602_expander_arg);
-
-  gpio_pin = (bl602_expander_pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
-
-  if (1 == bl602_expander_get_intstatus(gpio_pin))
-    {
-      bl602_expander_intclear(gpio_pin, 1);
-
-      /* timeout check */
-
-      time_out = 32;
-      do
-        {
-          time_out--;
-        }
-      while ((1 == bl602_expander_get_intstatus(gpio_pin)) && time_out);
-      if (!time_out)
-        {
-          gpiowarn("WARNING: Clear GPIO interrupt status fail.\n");
-        }
-
-      /* if time_out==0, GPIO interrupt status not cleared */
-
-      bl602_expander_intclear(gpio_pin, 0);
-    }
-
-  gpioinfo("Call callback=%p, arg=%p\n", bl602_expander_callback, bl602_expander_arg);
-  bl602_expander_callback(irq, context, bl602_expander_arg);
-  ////TODO Previously: bl602_expander_callback(&bl602xgpint->bl602gpio.gpio, gpio_pin);
-
-  return OK;
-}
-
-/****************************************************************************
- * Name: bl602_expander_intmask
- *
- * Description:
- *   Set Interrupt Mask for a GPIO Pin. Based on
- *   https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L143-L169
- *
- ****************************************************************************/
-
-static void bl602_expander_intmask(uint8_t gpio_pin, int intmask)
-{
-  uint32_t tmp_val;
-
-  if (gpio_pin < GPIO_PIN28)
-    {
-      tmp_val = getreg32(BL602_GPIO_INT_MASK1);
-      if (intmask == 1)
-        {
-          tmp_val |= (1 << gpio_pin);
-        }
-      else
-        {
-          tmp_val &= ~(1 << gpio_pin);
-        }
-
-      putreg32(tmp_val, BL602_GPIO_INT_MASK1);
-    }
-  else
-    {
-      gpioerr("Invalid pin %d\n", gpio_pin);
-      DEBUGPANIC();
-    }
-}
-
-/****************************************************************************
- * Name: bl602_expander_set_intmod
- *
- * Description:
- *   Set GPIO Interrupt Mode. Based on
- *   https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L171-L212
- *
- ****************************************************************************/
-
-static void bl602_expander_set_intmod(uint8_t gpio_pin,
-              uint8_t int_ctlmod, uint8_t int_trgmod)
-{
-  gpioinfo("gpio_pin=%d, int_ctlmod=%d, int_trgmod=%d\n", gpio_pin, int_ctlmod, int_trgmod); ////
-  uint32_t tmp_val;
-
-  if (gpio_pin < GPIO_PIN10)
-    {
-      /* GPIO0 ~ GPIO9 */
-
-      tmp_val = gpio_pin;
-      modifyreg32(BL602_GPIO_INT_MODE_SET1,
-                  0x7 << (3 * tmp_val),
-                  ((int_ctlmod << 2) | int_trgmod) << (3 * tmp_val));
-    }
-  else if (gpio_pin < GPIO_PIN20)
-    {
-      /* GPIO10 ~ GPIO19 */
-
-      tmp_val = gpio_pin - GPIO_PIN10;
-      modifyreg32(BL602_GPIO_INT_MODE_SET2,
-                  0x7 << (3 * tmp_val),
-                  ((int_ctlmod << 2) | int_trgmod) << (3 * tmp_val));
-    }
-  else if (gpio_pin < GPIO_PIN28)
-    {
-      /* GPIO20 ~ GPIO27 */
-
-      tmp_val = gpio_pin - GPIO_PIN20;
-      modifyreg32(BL602_GPIO_INT_MODE_SET3,
-                  0x7 << (3 * tmp_val),
-                  ((int_ctlmod << 2) | int_trgmod) << (3 * tmp_val));
-    }
-  else
-    {
-      gpioerr("Invalid pin %d\n", gpio_pin);
-      DEBUGPANIC();
-    }
-}
-
-/****************************************************************************
- * Name: bl602_expander_get_intstatus
- *
- * Description:
- *   Get GPIO Interrupt Status. Based on
- *   https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L214-L234
- *
- ****************************************************************************/
-
-static int bl602_expander_get_intstatus(uint8_t gpio_pin)
-{
-  uint32_t tmp_val = 0;
-
-  if (gpio_pin < GPIO_PIN28)
-    {
-      /* GPIO0 ~ GPIO27 */
-
-      tmp_val = getreg32(BL602_GPIO_INT_STAT1);
-    }
-  else
-    {
-      gpioerr("Invalid pin %d\n", gpio_pin);
-      DEBUGPANIC();
-    }
-
-  return (tmp_val & (1 << gpio_pin)) ? 1 : 0;
-}
-
-/****************************************************************************
- * Name: bl602_expander_intclear
- *
- * Description:
- *   Clear GPIO Interrupt. Based on
- *   https://github.com/lupyuen/incubator-nuttx/blob/touch/boards/risc-v/bl602/bl602evb/src/bl602_gpio.c#L236-L254
- *
- ****************************************************************************/
-
-static void bl602_expander_intclear(uint8_t gpio_pin, uint8_t int_clear)
-{
-  if (gpio_pin < GPIO_PIN28)
-    {
-      /* GPIO0 ~ GPIO27 */
-
-      modifyreg32(BL602_GPIO_INT_CLR1,
-                  int_clear ? 0 : (1 << gpio_pin),
-                  int_clear ? (1 << gpio_pin) : 0);
-    }
-  else
-    {
-      gpioerr("Invalid pin %d\n", gpio_pin);
-      DEBUGPANIC();
-    }
 }
