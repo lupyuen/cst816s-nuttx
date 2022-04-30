@@ -308,9 +308,21 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
           data.point[0].flags  = TOUCH_UP | TOUCH_ID_VALID;
         }
     }
-  else  /* Reject Contact */
+  else if (event == 2)  /* Contact */
     {
       iinfo("CONTACT: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
+      if (valid)  /* Touch coordinates were valid. */
+        {
+          data.point[0].flags  = TOUCH_MOVE | TOUCH_ID_VALID | TOUCH_POS_VALID;
+        }
+      else  /* Touch coordinates were invalid. */
+        {
+          data.point[0].flags  = TOUCH_MOVE | TOUCH_ID_VALID;
+        }
+    }
+  else  /* Reject Unknown Event */
+    {
+      iwarn("UNKNOWN EVENT: event=%d, id=%d, touch=%d, x=%d, y=%d\n", event, id, touchpoints, x, y);
       return -EINVAL;
     }
 
