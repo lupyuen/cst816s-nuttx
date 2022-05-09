@@ -261,6 +261,7 @@ static int cst816s_get_touch_data(FAR struct cst816s_dev_s *dev, FAR void *buf)
           ierr("Can't return touch data: id=%d, touch=%d, x=%d, y=%d\n", id, touchpoints, x, y);
           return -EINVAL;
         }
+      event = 1;  /* Change to Touch Up Event to prevent looping. */
       valid = false;
       id = last_id;
       x  = last_x;
