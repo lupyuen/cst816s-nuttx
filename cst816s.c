@@ -484,34 +484,6 @@ static int cst816s_close(FAR struct file *filep)
 }
 
 /****************************************************************************
- * Name: cst816s_poll_notify
- *
- * Description:
- *   Notify all waiting pollers.
- *
- ****************************************************************************/
-
-static void cst816s_poll_notify(FAR struct cst816s_dev_s *priv)
-{
-  int i;
-
-  iinfo("\n");
-  DEBUGASSERT(priv != NULL);
-
-  for (i = 0; i < CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS; i++)
-    {
-      struct pollfd *fds = priv->fds[i];
-      if (fds)
-        {
-          iinfo("Report events: %02x\n", fds->revents);
-
-          fds->revents |= POLLIN;
-          nxsem_post(fds->sem);
-        }
-    }
-}
-
-/****************************************************************************
  * Name: cst816s_poll
  *
  * Description:
@@ -579,7 +551,9 @@ static int cst816s_poll(FAR struct file *filep, FAR struct pollfd *fds,
           pending = priv->int_pending;
           if (pending)
             {
-              cst816s_poll_notify(priv);
+              poll_notify(priv->fds,
+                          CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS,
+                          POLLIN);
             }
         }
     }
@@ -621,7 +595,7 @@ static int cst816s_isr_handler(FAR struct ioexpander_dev_s *dev,
   priv->int_pending = true;
   leave_critical_section(flags);
 
-  cst816s_poll_notify(priv);
+  poll_notify(priv->fds, CONFIG_INPUT_CYPRESS_CST816S_NPOLLWAITERS, POLLIN);
   return 0;
 }
 
